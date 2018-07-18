@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WinnetouJs Index Page</title>
+
+    <!-- -------------------------------------------------------------------------------------------- -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script src='winnetou.js'></script>
+
+    <script type="text/javascript">
+    $(function() {
+
+        var W = new Winnetou();
+
+        W.init();
+
+        $("#adiciona").click(function() {
+
+            elements = {
+
+                'titulo': $("#titulo").val(),
+                'sub-titulo': $("#sub").val(),
+                'texto': $("#texto").val()
+
+            }
+
+            W.create("bloco2", ".saida", elements);
+
+            $(".titulo-" + W.construtorId).css("color", $("#cor").val());
+
+        })
+
+    })
+    </script>
+
+</head>
+
+<body>
+
+    <div class='container'>
+
+        <h1>WinnetouJs</h1> Titulo
+        <br>
+        <input type="titulo" id="titulo" value="Teste titulo">
+        <br> Sub Titulo
+        <br>
+        <input type="sub" id="sub" value="Teste subtitulo">
+        <br> Texto
+        <br>
+        <input type="texto" id="texto" value="Teste texto">
+        <br> Cor
+        <br>
+        <input type="texto" id="cor" value="red">
+        <hr>
+
+        <button id="adiciona">Adicionar Construto</button>
+
+        <div class='saida'></div>
+
+
+    </div>
+
+
+    <div class='winnetou'>
+
+        <div id="[[bloco1]]">
+
+            <h1 style="color:red" class="[[titulo]]"></h1>
+
+        </div>
+
+    </div>
+
+    <div class='winnetou'>
+
+        <div id="[[bloco2]]">
+
+            <h1 class='[[titulo]]'>{{titulo}}</h1>
+
+            <h2 class='[[sub-titulo]]'>{{sub-titulo}}</h2>
+
+            <p class='[[texto]]'>{{texto}}</p>
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>
