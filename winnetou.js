@@ -10,7 +10,7 @@
 // need jquery
 // recommended bootstrap
 
-var Winnetou2 = function() {
+var Winnetou3 = function() {
 
     this.version = '1.0';
 
