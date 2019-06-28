@@ -3,6 +3,8 @@
 // author Winetu Kaue Sedrez Bilhalva
 // kaue.sedrez@gmail.com
 
+// ultima modificação em 28/06/2019
+
 // need jquery
 // recommended bootstrap
 
