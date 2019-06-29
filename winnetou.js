@@ -5,78 +5,55 @@
 
 // ultima modificação em 28/06/2019
 
-//esta é uma branch de teste
-
 // need jquery
 // recommended bootstrap
+// recomended themes https://bootstrap.build/themes
 
-var Winnetou1 = function() {
+var Winnetou = function() {
+  this.version = "1.0";
 
-    this.version = '1.0';
+  this.construtorId = 0; // identificador de cada modal que chamaremos de contrutos, porque eu quero! kkk
 
-    this.construtorId = 0; // identificador de cada modal que chamaremos de contrutos, porque eu quero! kkk
+  $base = [];
 
-    $base = [];
+  this.init = function() {
+    // cria o V-Dom a partir do html
 
-    this.init = function() {
+    $(".winnetou").each(function() {
+      //tem que localizar o id
 
-        // cria o V-Dom a partir do html
+      $elem = $(this);
 
-        $(".winnetou").each(function() {
+      id = $elem.html().match(/\[\[(.*?)\]\]/)[1];
 
-            //tem que localizar o id
+      $base[id] = $elem.html();
 
-            $elem = $(this);
+      $elem.remove(); // remove o elemento base do html e deixa apenas no v-dom
+    });
 
-            id = $elem.html().match(/\[\[(.*?)\]\]/)[1];
+    this.create = function(construto, output, elements, identifier) {
+   
+      if (identifier == undefined) {
+        this.construtorId++;
 
-            $base[id] = $elem.html();
+        identifier = this.construtorId;
+      }
 
-            $elem.remove(); // remove o elemento base do html e deixa apenas no v-dom
+      this.construtorId++;
 
-        });
+      identifier = this.construtorId;
 
-        this.create = function(construto, output, elements,identifier) {
+      $vdom = $base[construto].replace(/\[\[(.*?)\]\]/g, "$1-" + identifier);
 
-            /*
+      $.each(elements, function(item) {
+        reg = new RegExp("{{(" + item + ")}}");
 
-        	var W = new Winnetou();
+        $vdom = $vdom.replace(reg, elements[item]);
+      });
 
-	        W.init();
+      // this.construtorId++;
 
-	        W.create("bloco1", ".saida","tenis1");
-	        W.create("bloco1", ".saida","tenis2");
-
-	        */
-
-            if (identifier == undefined) {
-
-                this.construtorId++;
-
-                identifier = this.construtorId;
-
-            }
-
-            this.construtorId++;
-
-            identifier = this.construtorId;
-
-            $vdom = $base[construto].replace(/\[\[(.*?)\]\]/g, "$1-" + identifier);
-
-            $.each(elements, function(item) {
-
-                reg = new RegExp("\{\{(" + item + ")\}\}");
-
-                $vdom = $vdom.replace(reg, elements[item]);
-
-            })
-
-            // this.construtorId++;
-
-            $(output).append($vdom);
-
-        }
-
-    }
-
-}
+      $(output).append($vdom);
+    };
+  };
+};
