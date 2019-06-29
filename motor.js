@@ -4,10 +4,10 @@ $(function() {
 	W.init();
 
 	W.create('componenteTexto1', 'body', {
-		texto: 'eu sou o construto #1',
+		texto: 'Foda-se o react e sua chatice!!!',
 	});
 
 	W.create('componenteTexto1', 'body', {
-		texto: 'eu sou o construto #2',
+		texto: 'Eu sou foda!!',
 	});
 });

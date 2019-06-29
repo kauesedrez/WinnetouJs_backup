@@ -26,7 +26,7 @@ var Winnetou = function() {
 			.each(function() {
 				var $elem = $(this);
 
-				var id = $elem.html().match(/\[\[(.*?)\]\]/)[1];
+				var id = $elem.html().match(/\[\[\s?(.*?)\s?\]\]/)[1];
 
 				$base[id] = $elem.html();
 
@@ -43,10 +43,11 @@ var Winnetou = function() {
 
 		identifier = 'WinnetouComponent-' + identifier;
 
-		var $vdom = $base[construto].replace(/\[\[(.*?)\]\]/g, '$1-' + identifier);
+		var $vdom = $base[construto].replace(/\[\[\s*?(.*?)\s*?\]\]/g, '$1-' + identifier);
 
 		$.each(elements, function(item) {
-			reg = new RegExp('{{(' + item + ')}}');
+            // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
+            reg = new RegExp('{{\\s*?(' + item + ')\\s*?}}');
 
 			$vdom = $vdom.replace(reg, elements[item]);
 		});
