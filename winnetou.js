@@ -10,50 +10,53 @@
 // recomended themes https://bootstrap.build/themes
 
 var Winnetou = function() {
-  this.version = "1.0";
+	this.version = '1.0';
 
-  this.construtorId = 0; // identificador de cada modal que chamaremos de contrutos, porque eu quero! kkk
+	this.construtorId = 0; // identificador de cada modal que chamaremos de 'construtos'.
 
-  $base = [];
+	var $base = [];
 
-  this.init = function() {
-    // cria o V-Dom a partir do html
+	const $baseHTML = Componentes;
 
-    $(".winnetou").each(function() {
-      //tem que localizar o id
+	this.init = function() {
+		// cria o V-Dom a partir do html
 
-      $elem = $(this);
+		$($baseHTML)
+			.filter('.winnetou')
+			.each(function() {
+				var $elem = $(this);
 
-      id = $elem.html().match(/\[\[(.*?)\]\]/)[1];
+				var id = $elem.html().match(/\[\[(.*?)\]\]/)[1];
 
-      $base[id] = $elem.html();
+				$base[id] = $elem.html();
 
-      $elem.remove(); // remove o elemento base do html e deixa apenas no v-dom
-    });
+				$elem.remove(); // remove o elemento base do html e deixa apenas no v-dom
+			});
+	};
 
-    this.create = function(construto, output, elements, identifier) {
-   
-      if (identifier == undefined) {
-        this.construtorId++;
+	this.create = function(construto, output, elements, identifier) {
+		if (identifier === undefined) {
+			this.construtorId++;
 
-        identifier = this.construtorId;
-      }
+			identifier = this.construtorId;
+		}
 
-      this.construtorId++;
+		identifier = 'WinnetouComponent-' + identifier;
 
-      identifier = this.construtorId;
+		var $vdom = $base[construto].replace(/\[\[(.*?)\]\]/g, '$1-' + identifier);
 
-      $vdom = $base[construto].replace(/\[\[(.*?)\]\]/g, "$1-" + identifier);
+		$.each(elements, function(item) {
+			reg = new RegExp('{{(' + item + ')}}');
 
-      $.each(elements, function(item) {
-        reg = new RegExp("{{(" + item + ")}}");
+			$vdom = $vdom.replace(reg, elements[item]);
+		});
 
-        $vdom = $vdom.replace(reg, elements[item]);
-      });
+		// this.construtorId++;
 
-      // this.construtorId++;
+		$(output).append($vdom);
+	};
+};
 
-      $(output).append($vdom);
-    };
-  };
+var log = function(x) {
+	console.log(x);
 };
