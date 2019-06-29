@@ -13,7 +13,7 @@ $(function() {
     
     W.create('componenteTexto1', 'body', {
 		texto: 'Ao alterar o construtos.html rodar o wcli novamente para atualizar o js',
-	});
+	}); 
 
 	
 });
