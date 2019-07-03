@@ -34,11 +34,33 @@ var Winnetou = function() {
 			});
 	};
 
-	this.create = function(construto, output, elements, identifier) {
-		if (identifier === undefined) {
+	this.create = function(construto, output, elements, options) {
+		/*
+		opções aceitas na versão 1.0
+		----------------------------------------
+		{
+			// para dar um nome conhecido ao id do construto. 
+			// Ideal se for usar o método destroy depois
+			identifier:String,
+
+			// para limpar a output antes de imprimir o construto com append novamente
+			// ideal quando se está atulizando uma dashboard e não inserindo novos resultados
+			clear:Boolean,
+
+			// se reverse for true usa o método prepend
+			// default se não definir é append
+			reverse:Boolean
+		}
+		*/
+
+		var identifier;
+
+		if (!options || options.identifier === undefined) {
 			this.construtorId++;
 
 			identifier = this.construtorId;
+		} else {
+			identifier = options.identifier;
 		}
 
 		identifier = 'WinnetouComponent-' + identifier;
@@ -46,15 +68,32 @@ var Winnetou = function() {
 		var $vdom = $base[construto].replace(/\[\[\s*?(.*?)\s*?\]\]/g, '$1-' + identifier);
 
 		$.each(elements, function(item) {
-            // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
-            reg = new RegExp('{{\\s*?(' + item + ')\\s*?}}');
+			// reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
+			reg = new RegExp('{{\\s*?(' + item + ')\\s*?}}');
 
 			$vdom = $vdom.replace(reg, elements[item]);
 		});
 
 		// this.construtorId++;
+		if (options && options.clear) {
+			$(output).html($vdom);
+		} else if (options && options.reverse) {
+			
+			$(output).prepend($vdom);
+		} else {
+			$(output).append($vdom);
+		}
+	};
 
-		$(output).append($vdom);
+	this.destroy = (construto, modal) => {
+		if (modal) {
+			$(construto).modal('hide');
+			$(construto).on('hidden.bs.modal', function() {
+				$(construto).remove();
+			});
+		} else {
+			$(construto).remove();
+		}
 	};
 };
 
