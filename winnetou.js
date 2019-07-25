@@ -28,7 +28,10 @@ var Winnetou = function() {
 
 				var id = $elem.html().match(/\[\[\s?(.*?)\s?\]\]/)[1];
 
-				$base[id] = $elem.html();
+				// limpa o tbody
+				var tbodyClean = $elem.html().replace(/\<tbody\>/g,"").replace(/\<\/tbody\>/g,"")
+
+				$base[id] = tbodyClean;
 
 				$elem.remove(); // remove o elemento base do html e deixa apenas no v-dom
 			});

@@ -15,5 +15,9 @@ $(function() {
 		texto: 'Ao alterar o construtos.html rodar o wcli novamente para atualizar o js',
 	}); 
 
+	W.create('componenteTexto1', 'body', {
+		texto: 'Para construir tabelas com winnetou, não se deve usar div winnetou e sim table winnetou, tem um exemplo nos construtos',
+	}); 
+
 	
 });
