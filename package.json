@@ -1,0 +1,30 @@
+{
+  "name": "winnetoujs",
+  "version": "1.0.0",
+  "description": "Servidor NodeJs para testar e criar novas funções para o framework WinnetouJs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kauesedrez/WinnetouJs.git"
+  },
+  "keywords": [
+    "framework",
+    "javascript",
+    "node",
+    "vdom"
+  ],
+  "author": "Winetu Kaue Sedrez Bilhalva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kauesedrez/WinnetouJs/issues"
+  },
+  "homepage": "https://github.com/kauesedrez/WinnetouJs#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1"
+  }
+}
