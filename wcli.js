@@ -12,16 +12,15 @@ ${data}
     console.log("babel")
     try {
         babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
-            console.log(err);
-            console.log(result.code)
+
             var resultU = UglifyJS.minify(result.code);
-            
+
             fs.writeFile('./construtos.js', resultU.code, function(err) {
                 console.log('Finalizado');
             });
         });
     } catch (e) {
-        console.log(e.message)
+        console.log(e.message) 
     }
 
 
