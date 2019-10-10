@@ -33,6 +33,8 @@ var Winnetou = function() {
     var $base = [];
 
     const $baseHTML = Componentes;
+    // eliminar da memoria $baseHTML e Componentes,
+    // na verdade nao precisa de $baseHTML
 
     this.init = function() {
         // cria o V-Dom a partir do html

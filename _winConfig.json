@@ -1,0 +1,7 @@
+{
+    "construtos_path": "./construtos.js",
+    "js": [
+        "./motor.js"
+    ],
+    "output": "./_public/js"
+}
