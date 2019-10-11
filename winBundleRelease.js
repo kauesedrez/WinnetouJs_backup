@@ -3,6 +3,7 @@ const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
 const config = require('./_winConfig.json');
 const uuid = require('uuid/v4');
+const request = require('Request');
 
 console.log('Bem Vindo ao WinnetouJS');
 
@@ -62,6 +63,23 @@ const adicionarArquivoAoBundle = async (arquivo) => {
     });
 }
 
+const adicionarURLAoBundle = async (url) => {
+    return new Promise((resolve, reject) => {
+        request(url, function(error, response, data) {
+            const arq = data;
+            try {
+                babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
+                    console.log('Adicionando ' + url);
+                    return resolve(result.code);
+                });
+            } catch (e) {
+                console.log(e.message)
+                return reject(e.message);
+            }
+        });
+    });
+}
+
 const BundleRelease = (dados) => {
     console.log('Gerando Bundle');
     var result = UglifyJS.minify(dados);
@@ -76,6 +94,16 @@ const BundleRelease = (dados) => {
 
 const Perform = async () => {
     let code = {};
+
+    // adiciona as dependências padrão
+    // isso poderá ser configurado via json no futuro
+    let jquery = await adicionarURLAoBundle("https://code.jquery.com/jquery-3.4.1.min.js");
+    code['jquery.js'] = jquery;
+    let popper = await adicionarURLAoBundle("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js");
+    code['popper.js'] = popper;
+    let bootstrap = await adicionarURLAoBundle("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js");
+    code['bootstrap.js'] = bootstrap;
+    // adiciona assets winnetou
     let construtos = await adicionarConstrutosAoBundle();
     code["construtos.js"] = construtos;
     let winnetou = await adicionarWinnetouAoBundle();
