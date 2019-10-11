@@ -1,8 +1,6 @@
 $(function() {
-	var W = new Winnetou();
+	var W = new Winnetou("debug");
 
-    W.init();
-    
     W.create('componenteTexto1', 'body', {
 		texto: 'Dentro do construtos.html escrever todo os componentes envoltos da div winnetou',
 	});

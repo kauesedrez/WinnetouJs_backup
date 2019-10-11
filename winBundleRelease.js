@@ -14,7 +14,15 @@ const output = config.output;
 const adicionarConstrutosAoBundle = () => {
     return new Promise((resolve, reject) => {
         fs.readFile(construtos_path, function(err, data) {
-            const arq = `const Componentes =\`${data}\`;`;
+            const arq = `
+
+            var Componentes =\`${data}\`;
+            var Div = document.createElement('div');
+            Div.innerHTML = Componentes;
+            Componentes = Div.getElementsByClassName("winnetou");
+            Div = null;
+
+            `;
             try {
                 babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
                     console.log('Adicionando construtos');
@@ -82,7 +90,9 @@ const adicionarURLAoBundle = async (url) => {
 
 const BundleRelease = (dados) => {
     console.log('Gerando Bundle');
+
     var result = UglifyJS.minify(dados);
+
     fs.writeFile('./bundleWinnetou.min.js', result.code, function(err) {
         // usar output
         console.log('Finalizado com sucesso.');
