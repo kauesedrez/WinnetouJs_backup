@@ -98,7 +98,7 @@ var Winnetou = function() {
 
         $.each(elements, function(item) {
             // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
-            reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
 
             $vdom = $vdom.replace(reg, elements[item]);
         });

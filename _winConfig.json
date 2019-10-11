@@ -1,5 +1,5 @@
 {
-    "construtos_path": "./construtos.js",
+    "construtos_path": "./construtos.html",
     "js": [
         "./motor.js"
     ],
