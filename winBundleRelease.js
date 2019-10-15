@@ -1,7 +1,7 @@
 const fs = require('fs');
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
-const config = require('./_winConfig.json');
+const config = require('./winConfig.json');
 const uuid = require('uuid/v4');
 const request = require('Request');
 
@@ -16,13 +16,11 @@ const adicionarConstrutosAoBundle = () => {
     return new Promise((resolve, reject) => {
         fs.readFile(construtos_path, function(err, data) {
             const arq = `
-
             var Componentes =\`${data}\`;
             var Div = document.createElement('div');
             Div.innerHTML = Componentes;
             Componentes = Div.getElementsByClassName("winnetou");
             Div = null;
-
             `;
             try {
                 babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
