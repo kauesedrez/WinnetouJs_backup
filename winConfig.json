@@ -3,5 +3,6 @@
     "js": [
         "./motor.js"
     ],
+    "bundleUrl": [],
     "output": "./_public/js"
 }

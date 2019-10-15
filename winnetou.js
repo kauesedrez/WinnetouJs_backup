@@ -5,25 +5,38 @@
     Contact: kaue.sedrez@gmail.com
 */
 class Winnetou {
-    constructor(debug = "") {
+    constructor(debug = "", next) {
         this.debug = debug;
         this.version = "0.10.0";
         this.construtorId = 0;
         this.$base = [];
-        // cria o V-Dom a partir do html      
-        //console.log(Componentes)
-        Array.from(Componentes).forEach(componente => {
-            var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
-            // limpa o tbody
-            // isso ainda é necessário? testar.
-            var tbodyClean = componente
-                .innerHTML
-                .replace(/\<tbody\>/g, "")
-                .replace(/\<\/tbody\>/g, "");
-            this.$base[id] = tbodyClean;
-        })
-        if (this.debug == "debug") console.log("winnetou log", this.$base);
-        Componentes = null; // garbage collector
+        this.loadScript = (src) => {
+            var js = document.createElement('script');
+            js.src = src;
+            document.head.appendChild(js);
+            js.onload = () => {
+                this.go();
+            };
+
+        }
+        this.loadScript("https://cdn.polyfill.io/v3/polyfill.js");
+
+        this.go = () => {
+
+            Array.from(Componentes).forEach(componente => {
+                var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
+                // limpa o tbody
+                // isso ainda é necessário? testar.
+                var tbodyClean = componente
+                    .innerHTML
+                    .replace(/\<tbody\>/g, "")
+                    .replace(/\<\/tbody\>/g, "");
+                this.$base[id] = tbodyClean;
+            })
+            if (this.debug == "debug") console.log("winnetou log", this.$base);
+            Componentes = null; // garbage collector
+            next();
+        }
     };
 
     /*
@@ -51,7 +64,7 @@ class Winnetou {
               reverse:Boolean
           }
           */
-        var identifier;
+        let identifier;
         if (!options || options.identifier === undefined) {
             this.construtorId++;
             identifier = this.construtorId;
@@ -63,19 +76,27 @@ class Winnetou {
             /\[\[\s*?(.*?)\s*?\]\]/g,
             "$1-" + identifier
         );
-        $.each(elements, function(item) {
-            // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
+
+        // $.each(elements, function(item) {
+        //     // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
+        //     let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+        //     $vdom = $vdom.replace(reg, elements[item]);
+        // });
+
+        for (let item in elements) {
+            console.log("teste array", item)
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
-        });
+        };
+
         // this.construtorId++;
         if (options && options.clear) {
-            $(output).html($vdom);
+            document.querySelector(output).innerHTML = $vdom;
         } else if (options && options.reverse) {
-            $(output).prepend($vdom);
+            document.querySelector(output).innerHTML = $vdom + document.querySelector(output).innerHTML;
         } else {
             try {
-                $(output).append($vdom);
+                document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
                 if (this.debug) console.log("inserido", output);
             } catch (e) {
                 if (this.debug)
@@ -83,14 +104,10 @@ class Winnetou {
             }
         }
     };
-    destroy(construto, modal) {
-        if (modal) {
-            $(construto).modal("hide");
-            $(construto).on("hidden.bs.modal", function() {
-                $(construto).remove();
-            });
-        } else {
-            $(construto).remove();
-        }
+
+    destroy(construto) {
+        let el = document.querySelector(construto);
+        el.remove();
+
     };
 };
