@@ -1,6 +1,6 @@
 {
   "name": "winnetoujs",
-  "version": "0.10",
+  "version": "0.10.0",
   "description": "Servidor NodeJs para testar e criar novas funções para o framework WinnetouJs",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/kauesedrez/WinnetouJs#readme",
   "dependencies": {
     "@babel/core": "^7.6.4",
-    "@babel/preset-env": "^7.6.3",    
+    "@babel/preset-env": "^7.6.3",
     "request": "^2.88.0",
     "uglify-js": "^3.6.1",
     "uuid": "^3.3.3"
