@@ -1,6 +1,6 @@
-var W = new Winnetou("production", function() {
+var W = new Winnetou("production", () => {
 
-    W.create('componenteTexto1', 'body', {
+   W.create('componenteTexto1', 'body', {
         texto: 'Dentro do construtos.html escrever todo os componentes envoltos da div winnetou',
         texto2: ' 2 Dentro do construtos.html escrever todo os componentes envoltos da div winnetou',
     });
@@ -18,3 +18,9 @@ var W = new Winnetou("production", function() {
     });
 
 });
+
+
+
+
+var mensagem = new Msg("ola mundo","blue");
+mensagem.show();

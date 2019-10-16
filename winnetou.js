@@ -36,14 +36,15 @@ class Winnetou {
             if (this.debug == "debug") console.log("winnetou log", this.$base);
             Componentes = null; // garbage collector
             next();
-        }
+        };
+
     };
 
     /*
 
         TODO
 
-        Tirar jquery do create.
+        [ok] - Tirar jquery do create.
 
     */
     create(construto, output, elements, options) {

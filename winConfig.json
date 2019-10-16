@@ -1,8 +1,22 @@
 {
     "construtos_path": "./construtos.html",
+    "output": "./_public/js",
+    "bundleJsUrl": [],
+    "bundleCssUrl": [],
     "js": [
+        "./classes.js",
         "./motor.js"
     ],
-    "bundleUrl": [],
-    "output": "./_public/js"
+    "css": [
+    	"./estilo.css"
+    ],
+    "sass": [
+    	"./estilos.scss"
+    ],
+    "builtIns":
+    {
+        "jquery": "none",
+        "bootstrapJs": "none",
+        "bootstrapCss": "none"
+    }
 }
