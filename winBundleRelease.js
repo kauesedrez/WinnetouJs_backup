@@ -21,7 +21,7 @@ try {
 }
 
 console.log('Bem Vindo ao WinnetouJS');
-console.log('Version ' + version);
+console.log('Version ' + version.version);
 
 // vai ler o arquivo de configurações
 const construtos_path = config.construtos_path;
