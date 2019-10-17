@@ -14,8 +14,14 @@ const uuid = require('uuid/v4');
 const request = require('Request');
 const UglifyCss = require('uglifycss');
 const sass = require('node-sass');
+try {
+    var version = require('./version.json');
+} catch (e) {
+    var version = "Warning! Arquivo version.json não localizado."
+}
 
 console.log('Bem Vindo ao WinnetouJS');
+console.log('Version ' + version);
 
 // vai ler o arquivo de configurações
 const construtos_path = config.construtos_path;
@@ -93,20 +99,20 @@ const adicionarArquivoAoBundle = async (arquivo) => {
 
 const adicionarSassAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
-            try {
-                sass.render({
-                    file: arquivo                    
-                }, function(err, result) { 
-                    
-                    console.log('Adicionando SASS: ' + arquivo);
-                    if (err) console.log("\n\nERRO: " + err, arquivo)
-                    return resolve(result.css);
-                });
-            } catch (e) {
-                console.log(e.message)
-                return reject(e.message);
-            }
-        
+        try {
+            sass.render({
+                file: arquivo
+            }, function(err, result) {
+
+                console.log('Adicionando SASS: ' + arquivo);
+                if (err) console.log("\n\nERRO: " + err, arquivo)
+                return resolve(result.css);
+            });
+        } catch (e) {
+            console.log(e.message)
+            return reject(e.message);
+        }
+
     });
 }
 
