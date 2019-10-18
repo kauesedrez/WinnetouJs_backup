@@ -2,11 +2,14 @@
 
     "construtos_path": "./construtos.html",
 
-    "output": "./_public/js",
+    "outputs":{
 
+        "js":"./_public/js",
+        "css":"./_public/css"
+
+    },
     
     "bundleJsUrl": [],
-
    
     "bundleCssUrl": [],
 

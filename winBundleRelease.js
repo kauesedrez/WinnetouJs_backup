@@ -20,6 +20,7 @@ const request = require('Request');
 const UglifyCss = require('uglifycss');
 const sass = require('node-sass');
 const htmlMinify = require('html-minifier').minify;
+const fse = require('fs-extra');
 try {
     var version = require('./version.json');
 } catch (e) {
@@ -248,76 +249,6 @@ const minifyHTML = async (arquivo) => {
 }
 //endregion
 
-// ------------------------ BundleRelease
-//region
-const BundleRelease = (dados) => {
-    console.log('Gerando Bundle');
-
-    var result = UglifyJS.minify(dados);
-
-    result = result.code;
-
-    mini.forEach(item => {
-        result = item + result;
-    })
-
-    fs.writeFile('./bundleWinnetou.min.js', result, function(err) {
-        // usar output
-        console.log('\n\n === Bundle JS Finished === \n\n');
-        return new Promise((resolve, reject) => {
-            resolve(true);
-        })
-    });
-}
-//endregion
-
-// ------------------------ BundleCss
-//region
-const BundleCss = (dados) => {
-    console.log('Gerando Bundle CSS');
-
-    let stringU = "";
-    dados.forEach(item => {
-        stringU += item;
-    })
-    var result = UglifyCss.processString(stringU);
-
-    miniCss.forEach(item => {
-        result = item + result;
-    })
-
-    fs.writeFile('./bundleWinnetouStyles.min.css', result, function(err) {
-        // usar output
-        console.log('\n\n === Bundle CSS Finished === \n\n');
-        return new Promise((resolve, reject) => {
-            resolve(true);
-        })
-    });
-}
-//endregion
-
-// ------------------------ BundleExtras
-//region
-const BundleExtras = (dados) => {
-
-    // como nomear os arquivos html?
-    // tem que ser o mesmo nome no mesmo path com .min.html
-
-    console.log('Analisando extras');
-
-    dados.forEach(item => {
-
-        //console.log(">>> item",JSON.stringify(item))
-
-        fs.writeFile(item.path.replace(".html",".min.html").replace(".htm",".min.htm"), item.code, err => {});
-
-    })
-
-    console.log("Extras finalizado.");
-
-}
-//endregion
-
 // ------------------------ Perform
 //region
 const Perform = async () => {
@@ -411,6 +342,78 @@ const PerformExtras = async () => {
         codeHTML.push({code:arquivo,path:config.extras.minifyHTML[i]});
     }
     return codeHTML;
+
+}
+//endregion
+
+
+// ------------------------ BundleRelease
+//region
+const BundleRelease = (dados) => {
+    console.log('Gerando Bundle');
+
+    var result = UglifyJS.minify(dados);
+
+    result = result.code;
+
+    mini.forEach(item => {
+        result = item + result;
+    })
+
+    fse.outputFile(config.outputs.js+'/bundleWinnetou.min.js', result, function(err) {
+        // usar output
+        console.log('\n\n === Bundle JS Finished === \n\n');
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        })
+    });
+}
+//endregion
+
+// ------------------------ BundleCss
+//region
+const BundleCss = (dados) => {
+    console.log('Gerando Bundle CSS');
+
+    let stringU = "";
+    dados.forEach(item => {
+        stringU += item;
+    })
+    var result = UglifyCss.processString(stringU);
+
+    miniCss.forEach(item => {
+        result = item + result;
+    })
+
+    fse.outputFile(config.outputs.css+'/bundleWinnetouStyles.min.css', result, function(err) {
+        if(err)console.log(">>ERR",err)
+        // usar output
+        console.log('\n\n === Bundle CSS Finished === \n\n');
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        })
+    });
+}
+//endregion
+
+// ------------------------ BundleExtras
+//region
+const BundleExtras = (dados) => {
+
+    // como nomear os arquivos html?
+    // tem que ser o mesmo nome no mesmo path com .min.html
+
+    console.log('Analisando extras');
+
+    dados.forEach(item => {
+
+        //console.log(">>> item",JSON.stringify(item))
+
+        fs.writeFile(item.path.replace(".html",".min.html").replace(".htm",".min.htm"), item.code, err => {});
+
+    })
+
+    console.log("Extras finalizado.");
 
 }
 //endregion
