@@ -11,7 +11,7 @@
 
 // ------------------------ imports
 //region
-const fs = require('fs'); 
+const fs = require('fs');
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
 const config = require('./winConfig.json');
@@ -19,11 +19,13 @@ const uuid = require('uuid/v4');
 const request = require('Request');
 const UglifyCss = require('uglifycss');
 const sass = require('node-sass');
+const htmlMinify = require('html-minifier').minify;
 try {
     var version = require('./version.json');
 } catch (e) {
     var version = "Warning! Arquivo version.json não localizado."
 }
+
 //endregion
 
 // ------------------------ variáveis globais
@@ -36,6 +38,7 @@ var code = {};
 var mini = [];
 var codeCss = [];
 var miniCss = [];
+var codeHTML = [];
 //endregion
 
 // ------------------------ adicionarConstrutosAoBundle
@@ -214,6 +217,37 @@ const adicionarURLAoBundleCss = async (url) => {
 }
 //endregion
 
+// ------------------------ minifyHTML
+//region
+const minifyHTML = async (arquivo) => {
+
+    return new Promise((resolve, reject) => {
+
+        const htmlString = fs.readFileSync(arquivo, "utf8");
+
+        try {
+            console.log('HTML Minificado: ' + arquivo);
+
+            var res = htmlMinify(htmlString, {
+                removeAttributeQuotes: true,
+                caseSensitive:true,
+                collapseBooleanAttributes:true,
+                collapseWhitespace:true,
+                removeComments:true,
+                removeEmptyAttributes:true
+            }); // node module que minifica o HTML
+            return resolve(res);
+
+        } catch (e) {
+
+            console.log("\n\nERRO [!] - Minificar HTML: " + e.message, "Arquivo com erro: " + arquivo + "\n\n")
+            return reject(e.message);
+        }
+
+    });
+}
+//endregion
+
 // ------------------------ BundleRelease
 //region
 const BundleRelease = (dados) => {
@@ -259,6 +293,28 @@ const BundleCss = (dados) => {
             resolve(true);
         })
     });
+}
+//endregion
+
+// ------------------------ BundleExtras
+//region
+const BundleExtras = (dados) => {
+
+    // como nomear os arquivos html?
+    // tem que ser o mesmo nome no mesmo path com .min.html
+
+    console.log('Analisando extras');
+
+    dados.forEach(item => {
+
+        //console.log(">>> item",JSON.stringify(item))
+
+        fs.writeFile(item.path.replace(".html",".min.html").replace(".htm",".min.htm"), item.code, err => {});
+
+    })
+
+    console.log("Extras finalizado.");
+
 }
 //endregion
 
@@ -343,16 +399,39 @@ const PerformCss = async () => {
 }
 //endregion
 
-// ------------------------ Perform
+// ------------------------ PerformExtras
+//region
+const PerformExtras = async () => {
+
+    for (let i = 0; i < config.extras.minifyHTML.length; i++) {
+
+        let arquivo = await minifyHTML(config.extras.minifyHTML[i]);
+        // arquivo é o codigo html já minificado
+        // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
+        codeHTML.push({code:arquivo,path:config.extras.minifyHTML[i]});
+    }
+    return codeHTML;
+
+}
+//endregion
+
+// ------------------------ [call] Perform
 //region
 Perform().then(resultado => {
     BundleRelease(resultado);
 });
 //endregion
 
-// ------------------------ PerformCss
+// ------------------------ [call] PerformCss
 //region
 PerformCss().then(resultado => {
     BundleCss(resultado)
+})
+//endregion
+
+// ------------------------ [call] PerformExtras
+//region
+PerformExtras().then(resultado => {
+    BundleExtras(resultado)
 })
 //endregion

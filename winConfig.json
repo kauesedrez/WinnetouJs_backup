@@ -1,22 +1,41 @@
 {
+
     "construtos_path": "./construtos.html",
+
     "output": "./_public/js",
+
+    
     "bundleJsUrl": [],
+
+   
     "bundleCssUrl": [],
+
     "js": [
         "./classes.js",
         "./motor.js"
     ],
+
     "css": [
-    	"./estilo.css"
+        "./estilo.css"
     ],
+
     "sass": [
-    	"./estilos.scss"
+        "./estilos.scss"
     ],
+
     "builtIns":
     {
         "jquery": "none",
         "bootstrapJs": "none",
         "bootstrapCss": "none"
+    },
+
+    "extras":
+    {
+        "minifyHTML": [
+            "./Teste_prod.htm",
+            "./Teste_dev.htm"
+        ]
     }
+
 }
