@@ -1,3 +1,5 @@
+// ------------------------ WinnetouJs Bundler
+//region
 /*
 
     Suporte apenas para IE9+
@@ -5,7 +7,10 @@
     Não funciona no IE8
 
 */
+//endregion
 
+// ------------------------ imports
+//region
 const fs = require('fs'); 
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
@@ -19,19 +24,24 @@ try {
 } catch (e) {
     var version = "Warning! Arquivo version.json não localizado."
 }
+//endregion
 
+// ------------------------ variáveis globais
+//region
 console.log('Bem Vindo ao WinnetouJS');
 console.log('Version ' + version.version);
-
-// vai ler o arquivo de configurações
 const construtos_path = config.construtos_path;
 const output = config.output;
 var code = {};
 var mini = [];
-
 var codeCss = [];
 var miniCss = [];
+//endregion
 
+// ------------------------ adicionarConstrutosAoBundle
+// Cria a const que armazena os construtos, passando de html para ES2019
+// Usa Babel para ter compatibilidade ie9+ via polyfill no html
+//region
 const adicionarConstrutosAoBundle = () => {
     return new Promise((resolve, reject) => {
         fs.readFile(construtos_path, function(err, data) {
@@ -54,7 +64,10 @@ const adicionarConstrutosAoBundle = () => {
         });
     });
 }
+//endregion
 
+// ------------------------ adicionarWinnetouAoBundle
+//region
 const adicionarWinnetouAoBundle = () => {
     return new Promise((resolve, reject) => {
         fs.readFile('./winnetou.js', function(err, data) {
@@ -78,7 +91,10 @@ const adicionarWinnetouAoBundle = () => {
         });
     });
 }
+//endregion
 
+// ------------------------ adicionarArquivoAoBundle
+//region
 const adicionarArquivoAoBundle = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function(err, data) {
@@ -96,7 +112,10 @@ const adicionarArquivoAoBundle = async (arquivo) => {
         });
     });
 }
+//endregion
 
+// ------------------------ adicionarSassAoBundleCss
+//region
 const adicionarSassAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
         try {
@@ -115,7 +134,10 @@ const adicionarSassAoBundleCss = async (arquivo) => {
 
     });
 }
+//endregion
 
+// ------------------------ adicionarArquivoAoBundleCss
+//region
 const adicionarArquivoAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function(err, data) {
@@ -132,7 +154,10 @@ const adicionarArquivoAoBundleCss = async (arquivo) => {
         });
     });
 }
+//endregion
 
+// ------------------------ adicionarURLAoBundle
+//region
 const adicionarURLAoBundle = async (url) => {
     return new Promise((resolve, reject) => {
         if (url.includes("min")) {
@@ -165,7 +190,10 @@ const adicionarURLAoBundle = async (url) => {
 
     });
 }
+//endregion
 
+// ------------------------ adicionarURLAoBundleCss
+//region
 const adicionarURLAoBundleCss = async (url) => {
     return new Promise((resolve, reject) => {
 
@@ -184,7 +212,10 @@ const adicionarURLAoBundleCss = async (url) => {
 
     });
 }
+//endregion
 
+// ------------------------ BundleRelease
+//region
 const BundleRelease = (dados) => {
     console.log('Gerando Bundle');
 
@@ -204,7 +235,10 @@ const BundleRelease = (dados) => {
         })
     });
 }
+//endregion
 
+// ------------------------ BundleCss
+//region
 const BundleCss = (dados) => {
     console.log('Gerando Bundle CSS');
 
@@ -226,7 +260,10 @@ const BundleCss = (dados) => {
         })
     });
 }
+//endregion
 
+// ------------------------ Perform
+//region
 const Perform = async () => {
 
     // adicina js CDNs via winConfig.json
@@ -272,7 +309,10 @@ const Perform = async () => {
 
     return code;
 };
+//endregion
 
+// ------------------------ PerformCss
+//region
 const PerformCss = async () => {
 
     for (let i = 0; i < config.bundleCssUrl.length; i++) {
@@ -301,11 +341,18 @@ const PerformCss = async () => {
     return codeCss;
 
 }
+//endregion
 
+// ------------------------ Perform
+//region
 Perform().then(resultado => {
     BundleRelease(resultado);
 });
+//endregion
 
+// ------------------------ PerformCss
+//region
 PerformCss().then(resultado => {
     BundleCss(resultado)
 })
+//endregion
