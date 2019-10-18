@@ -7,36 +7,23 @@
 class Winnetou {
     constructor(debug = "", next) {
         this.debug = debug;
-        this.version = "0.10.0";
+        this.version = "0.10.1";
         this.construtorId = 0;
         this.$base = [];
-        this.loadScript = (src) => {
-            var js = document.createElement('script');
-            js.src = src;
-            document.head.appendChild(js);
-            js.onload = () => {
-                this.go();
-            };
 
-        }
-        this.loadScript("https://cdn.polyfill.io/v3/polyfill.js");
-
-        this.go = () => {
-
-            Array.from(Componentes).forEach(componente => {
-                var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
-                // limpa o tbody
-                // isso ainda é necessário? testar.
-                var tbodyClean = componente
-                    .innerHTML
-                    .replace(/\<tbody\>/g, "")
-                    .replace(/\<\/tbody\>/g, "");
-                this.$base[id] = tbodyClean;
-            })
-            if (this.debug == "debug") console.log("winnetou log", this.$base);
-            Componentes = null; // garbage collector
-            next();
-        };
+        Array.from(Componentes).forEach(componente => {
+            var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
+            // limpa o tbody
+            // isso ainda é necessário? testar.
+            var tbodyClean = componente
+                .innerHTML
+                .replace(/\<tbody\>/g, "")
+                .replace(/\<\/tbody\>/g, "");
+            this.$base[id] = tbodyClean;
+        })
+        if (this.debug == "debug") console.log("winnetou log", this.$base);
+        Componentes = null; // garbage collector
+       
 
     };
 
