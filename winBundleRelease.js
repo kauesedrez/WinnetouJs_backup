@@ -14,7 +14,6 @@
 const fs = require('fs');
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
-const config = require('./winConfig.json');
 const uuid = require('uuid/v4');
 const request = require('Request');
 const UglifyCss = require('uglifycss');
@@ -25,6 +24,13 @@ try {
     var version = require('./version.json');
 } catch (e) {
     var version = "Warning! Arquivo version.json não localizado."
+}
+var config;
+try {
+    config = require('./winConfig.json');
+} catch (e) {
+    console.log("Configuration file error or missing; exit code 0.");
+    return;
 }
 
 //endregion
@@ -231,11 +237,11 @@ const minifyHTML = async (arquivo) => {
 
             var res = htmlMinify(htmlString, {
                 removeAttributeQuotes: true,
-                caseSensitive:true,
-                collapseBooleanAttributes:true,
-                collapseWhitespace:true,
-                removeComments:true,
-                removeEmptyAttributes:true
+                caseSensitive: true,
+                collapseBooleanAttributes: true,
+                collapseWhitespace: true,
+                removeComments: true,
+                removeEmptyAttributes: true
             }); // node module que minifica o HTML
             return resolve(res);
 
@@ -252,8 +258,6 @@ const minifyHTML = async (arquivo) => {
 // ------------------------ Perform
 //region
 const Perform = async () => {
-
-    // adicina js CDNs via winConfig.json
 
     for (let i = 0; i < config.bundleJsUrl.length; i++) {
         let arquivo = await adicionarURLAoBundle(config.bundleJsUrl[i]);
@@ -287,8 +291,36 @@ const Perform = async () => {
     // apenas for pode ser usado em função assíncrono
     // forEach não funciona.
     for (let i = 0; i < config.js.length; i++) {
-        let arquivo = await adicionarArquivoAoBundle(config.js[i]);
-        code["file-" + uuid()] = arquivo;
+
+        // aqui entra o algoritmo das pastas ou arquivos
+        // temos que testar o final do arquivo
+        let nome = config.js[i];
+        if (nome.includes(".js")) {
+
+            let arquivo = await adicionarArquivoAoBundle(config.js[i]);
+            code["file-" + uuid()] = arquivo;
+
+        } else {
+            // é pasta
+            // roda o algoritmo que varre as pastas
+
+            try {
+                let files = fs.readdirSync(nome);
+
+                for (let a = 0; a < files.length; a++) {
+
+                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+
+                    let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
+
+                    code["file-" + uuid()] = arquivo;
+
+                }
+            } catch (e) {
+                console.log("Ignored Error -> " + e.message)
+            }
+
+        }
     }
     // config.js.forEach(async item => {
     // erro
@@ -316,13 +348,65 @@ const PerformCss = async () => {
     }
 
     for (let i = 0; i < config.css.length; i++) {
-        let arquivo = await adicionarArquivoAoBundleCss(config.css[i]);
-        codeCss.push(arquivo);
+
+        let nome = config.css[i];
+        if (nome.includes(".css")) {
+
+            let arquivo = await adicionarArquivoAoBundleCss(config.css[i]);
+            codeCss.push(arquivo);
+
+        } else {
+
+            try {
+                let files = fs.readdirSync(nome);
+
+                for (let a = 0; a < files.length; a++) {
+
+                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+
+                    let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
+
+                    codeCss.push(arquivo);
+
+                }
+
+            } catch (e) {
+                console.log("Ignored Error -> " + e.message)
+            }
+
+        }
+
     }
 
     for (let i = 0; i < config.sass.length; i++) {
-        let arquivo = await adicionarSassAoBundleCss(config.sass[i]);
-        codeCss.push(arquivo);
+
+        let nome = config.sass[i];
+        if (nome.includes(".scss")) {
+
+            let arquivo = await adicionarSassAoBundleCss(config.sass[i]);
+            codeCss.push(arquivo);
+
+        } else {
+
+            try {
+
+                let files = fs.readdirSync(nome);
+
+                for (let a = 0; a < files.length; a++) {
+
+                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+
+                    let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
+
+                    codeCss.push(arquivo);
+
+                }
+
+            } catch (e) {
+                console.log("Ignored Error -> " + e.message)
+            }
+
+        }
     }
 
     return codeCss;
@@ -336,16 +420,42 @@ const PerformExtras = async () => {
 
     for (let i = 0; i < config.extras.minifyHTML.length; i++) {
 
-        let arquivo = await minifyHTML(config.extras.minifyHTML[i]);
-        // arquivo é o codigo html já minificado
-        // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
-        codeHTML.push({code:arquivo,path:config.extras.minifyHTML[i]});
+        let nome = config.extras.minifyHTML[i];
+
+        if (nome.includes(".html") || nome.includes(".htm")) {
+
+            let arquivo = await minifyHTML(config.extras.minifyHTML[i]);
+            // arquivo é o codigo html já minificado
+            // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
+            codeHTML.push({ code: arquivo, path: config.extras.minifyHTML[i] });
+        } else {
+            // é diretório
+
+            try {
+                let files = fs.readdirSync(nome);
+
+                for (let a = 0; a < files.length; a++) {
+
+                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+
+                    let arquivo = await minifyHTML(nome + "/" + files[a]);
+                    // arquivo é o codigo html já minificado
+                    // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
+                    codeHTML.push({ code: arquivo, path: nome + "/" + files[a] });
+                    // ------
+
+                }
+
+            } catch (e) {
+                console.log("Ignored Error -> " + e.message)
+            }
+
+        }
     }
     return codeHTML;
 
 }
 //endregion
-
 
 // ------------------------ BundleRelease
 //region
@@ -360,7 +470,7 @@ const BundleRelease = (dados) => {
         result = item + result;
     })
 
-    fse.outputFile(config.outputs.js+'/bundleWinnetou.min.js', result, function(err) {
+    fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', result, function(err) {
         // usar output
         console.log('\n\n === Bundle JS Finished === \n\n');
         return new Promise((resolve, reject) => {
@@ -385,8 +495,8 @@ const BundleCss = (dados) => {
         result = item + result;
     })
 
-    fse.outputFile(config.outputs.css+'/bundleWinnetouStyles.min.css', result, function(err) {
-        if(err)console.log(">>ERR",err)
+    fse.outputFile(config.outputs.css + '/bundleWinnetouStyles.min.css', result, function(err) {
+        if (err) console.log(">>ERR", err)
         // usar output
         console.log('\n\n === Bundle CSS Finished === \n\n');
         return new Promise((resolve, reject) => {
@@ -409,7 +519,7 @@ const BundleExtras = (dados) => {
 
         //console.log(">>> item",JSON.stringify(item))
 
-        fs.writeFile(item.path.replace(".html",".min.html").replace(".htm",".min.htm"), item.code, err => {});
+        fs.writeFile(item.path.replace(".html", ".min.html").replace(".htm", ".min.htm"), item.code, err => {});
 
     })
 
@@ -418,7 +528,7 @@ const BundleExtras = (dados) => {
 }
 //endregion
 
-// ------------------------ [call] Perform
+// ------------------------ [call] Perform [js]
 //region
 Perform().then(resultado => {
     BundleRelease(resultado);

@@ -2,27 +2,35 @@
 
     "construtos_path": "./construtos.html",
 
-    "outputs":{
+    "outputs":
+    {
 
-        "js":"./_public/js",
-        "css":"./_public/css"
+        "js": "./_public/js",
+        "css": "./_public/css"
 
     },
-    
+
     "bundleJsUrl": [],
-   
+
     "bundleCssUrl": [],
 
     "js": [
+        "./_public__dev__/js",
+        "./_public__dev__/js2",
         "./classes.js",
-        "./motor.js"
+        "./motor.js",
+        "./inexistente.js"
     ],
 
     "css": [
+        "./_public__dev__/css",
+        "./_public__dev__/css2",
         "./estilo.css"
+
     ],
 
     "sass": [
+        "./_public__dev__/sass",
         "./estilos.scss"
     ],
 
@@ -37,7 +45,8 @@
     {
         "minifyHTML": [
             "./Teste_prod.htm",
-            "./Teste_dev.htm"
+            "./Teste_dev.htm",
+            "./_public__dev__/html"
         ]
     }
 
