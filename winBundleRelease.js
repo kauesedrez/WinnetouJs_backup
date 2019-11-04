@@ -167,7 +167,8 @@ const adicionarWinnetouAoBundle = () => {
                 babel.transform(arq, {
                     "presets": [
                         "@babel/preset-env"
-                    ]
+                    ],
+                    retainLines:true
                 }, function(err, result) {
                     if (err) { console.log(err); return; }
 
@@ -191,10 +192,10 @@ const adicionarArquivoAoBundle = async (arquivo) => {
         fs.readFile(arquivo, function(err, data) {
             const arq = data;
             try {
-                babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
+                babel.transform(arq, { presets: ["@babel/preset-env"], retainLines:true }, function(err, result) {
                     console.log('Adicionando ' + arquivo);
                     if (err) console.log("\n\nERRO: " + err, arquivo)
-                    return resolve(result.code);
+                    return resolve({nome:arquivo,codigo:result.code});
                 });
             } catch (e) {
                 console.log(e.message)
@@ -379,7 +380,7 @@ const PerformJs = async () => {
         if (nome.includes(".js")) {
 
             let arquivo = await adicionarArquivoAoBundle(config.js[i]);
-            code["file-" + uuid()] = arquivo;
+            code[arquivo.nome] = arquivo.codigo;
 
         } else {
             // é pasta
@@ -394,7 +395,7 @@ const PerformJs = async () => {
 
                     let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
 
-                    code["file-" + uuid()] = arquivo;
+                    code[arquivo.nome] = arquivo.codigo;
 
                 }
             } catch (e) {
@@ -542,19 +543,35 @@ const PerformExtras = async () => {
 //region
 const BundleJs = async (dados) => {
 
-    var result = UglifyJS.minify(dados);
+        var result = UglifyJS.minify(dados, {
+        sourceMap: {
+            filename: "./bundleWinnetou.min.js",
+            url: "./bundleWinnetou.min.js.map"
+        }
+    });
 
-    result = result.code;
+    //console.log("\n\n\n\n\n",result.map,"\n\n\n\n\n");
+
+    var resultJs = result.code;
 
     mini.forEach(item => {
-        result = item + result;
+        resultJs = item + resultJs;
     })
 
     let error = false;
-    let promisse = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', result, function(err) {
+    let promisse = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', resultJs, function(err) {
         if (err) error = err;
     });
     let promisse2 = promisse;
+
+    // sourcemap
+    let promisse3 = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js.map', result.map, function(err) {
+        if (err) error = err;
+    });
+    let promisse4 = promisse3;
+
+
+
     console.log('\n\n === Bundle JS Finished === \n\n');
     return new Promise((resolve, reject) => {
         if (error) reject(error);
