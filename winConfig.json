@@ -2,6 +2,8 @@
 
     "construtos_path": "./construtos.html",
 
+    "livereload":"winnetou", 
+
     "outputs":
     {
 
@@ -45,8 +47,7 @@
     {
         "minifyHTML": [
             "./Teste_prod.htm",
-            "./Teste_dev.htm",
-            "./_public__dev__/html"
+            "./Teste_dev.htm"
         ]
     }
 

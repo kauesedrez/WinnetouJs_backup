@@ -20,10 +20,11 @@ const UglifyCss = require('uglifycss');
 const sass = require('node-sass');
 const htmlMinify = require('html-minifier').minify;
 const fse = require('fs-extra');
+var version;
 try {
-    var version = require('./version.json');
+    version = require('./version.json');
 } catch (e) {
-    var version = "Warning! Arquivo version.json não localizado."
+    version = "Warning! Arquivo version.json não localizado."
 }
 var config;
 try {
@@ -46,6 +47,86 @@ var mini = [];
 var codeCss = [];
 var miniCss = [];
 var codeHTML = [];
+var performAllControl = false;
+
+ClearCache = () => {
+
+    code = {};
+    mini = [];
+    codeCss = [];
+    miniCss = [];
+    codeHTML = [];
+    performAllControl = false;
+
+}
+
+//endregion
+
+// ------------------------ livereload
+//region
+
+if (config.livereload) {
+
+    var watch = require('node-watch');
+
+    switch (config.livereload) {
+
+        case "sass":
+
+            console.log("\n\n>>> Watching Sass\n\n\n")
+
+            var locaisSass = [];
+
+            for (let i = 0; i < config.sass.length; i++) {
+
+                locaisSass.push(config.sass[i])
+            }
+
+            watch(locaisSass, { recursive: false }, function(evt, name) {
+                console.log("\n\n Teste: " + name)
+                sassDev(name);
+            });
+            break;
+
+        case "winnetou":
+            watch(__dirname, { recursive: true }, function(evt, name) {
+                // atenção, recursive não funciona no linux
+
+                if (performAllControl) {
+                    console.log("\n\n Arquivo alterado, recompilando winnetou: " + name)
+                    performAllControl = false;
+                    ClearCache();
+                    PerformAll();
+                }
+
+            });
+            break;
+
+    }
+
+}
+
+const sassDev = arquivo => {
+
+    sass.render({
+        file: arquivo
+    }, function(err, result) {
+        console.log("\n\ndentro do result sass render")
+        // result.css
+
+        var newName = config.outputs.css + "/" + arquivo.replace("scss", "css");
+
+        fse.outputFile(newName, result.css, function(err) {
+
+            console.log("\n\n>>> Live Reload transpile SASS: " + arquivo);
+            return true;
+
+        });
+
+    });
+
+}
+
 //endregion
 
 // ------------------------ adicionarConstrutosAoBundle
@@ -255,9 +336,9 @@ const minifyHTML = async (arquivo) => {
 }
 //endregion
 
-// ------------------------ Perform
+// ------------------------ PerformJs
 //region
-const Perform = async () => {
+const PerformJs = async () => {
 
     for (let i = 0; i < config.bundleJsUrl.length; i++) {
         let arquivo = await adicionarURLAoBundle(config.bundleJsUrl[i]);
@@ -330,7 +411,7 @@ const Perform = async () => {
 };
 //endregion
 
-// ------------------------ PerformCss
+// ------------------------ PerformCss and sass
 //region
 const PerformCss = async () => {
 
@@ -457,10 +538,9 @@ const PerformExtras = async () => {
 }
 //endregion
 
-// ------------------------ BundleRelease
+// ------------------------ BundleJs
 //region
-const BundleRelease = (dados) => {
-    console.log('Gerando Bundle');
+const BundleJs = async (dados) => {
 
     var result = UglifyJS.minify(dados);
 
@@ -470,19 +550,23 @@ const BundleRelease = (dados) => {
         result = item + result;
     })
 
-    fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', result, function(err) {
-        // usar output
-        console.log('\n\n === Bundle JS Finished === \n\n');
-        return new Promise((resolve, reject) => {
-            resolve(true);
-        })
+    let error = false;
+    let promisse = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', result, function(err) {
+        if (err) error = err;
     });
+    let promisse2 = promisse;
+    console.log('\n\n === Bundle JS Finished === \n\n');
+    return new Promise((resolve, reject) => {
+        if (error) reject(error);
+        else
+            resolve(true);
+    })
 }
 //endregion
 
 // ------------------------ BundleCss
 //region
-const BundleCss = (dados) => {
+const BundleCss = async (dados) => {
     console.log('Gerando Bundle CSS');
 
     let stringU = "";
@@ -495,56 +579,75 @@ const BundleCss = (dados) => {
         result = item + result;
     })
 
-    fse.outputFile(config.outputs.css + '/bundleWinnetouStyles.min.css', result, function(err) {
-        if (err) console.log(">>ERR", err)
-        // usar output
-        console.log('\n\n === Bundle CSS Finished === \n\n');
-        return new Promise((resolve, reject) => {
-            resolve(true);
-        })
+    let error = false;
+    let promisse = await fse.outputFile(config.outputs.css + '/bundleWinnetouStyles.min.css', result, function(err) {
+        if (err) {
+            console.log(">>ERR", err);
+            error = err;
+        }
     });
+    let promisse2 = promisse;
+
+    console.log('\n\n === Bundle CSS Finished === \n\n');
+    return new Promise((resolve, reject) => {
+        if (error) reject(false);
+        else
+            resolve(true);
+    })
 }
 //endregion
 
 // ------------------------ BundleExtras
 //region
-const BundleExtras = (dados) => {
+const BundleExtras = async (dados) => {
 
     // como nomear os arquivos html?
     // tem que ser o mesmo nome no mesmo path com .min.html
 
-    console.log('Analisando extras');
+    // console.log('Analisando extras',dados);
 
-    dados.forEach(item => {
+    return new Promise(async (resolve, reject) => {
 
-        //console.log(">>> item",JSON.stringify(item))
+        try {
+            for (let i = 0; i < dados.length; i++) {
+                //console.log("extras: ",dados[i])
+                let promisse = await fs.writeFile(dados[i].path.replace(".html", ".min.html").replace(".htm", ".min.htm"), dados[i].code, err => {});
 
-        fs.writeFile(item.path.replace(".html", ".min.html").replace(".htm", ".min.htm"), item.code, err => {});
+                let promisse2 = promisse;
+
+            }
+
+            console.log('\n\n === Bundle Extras Finished === \n\n');
+            resolve(true);
+        } catch (e) {
+            reject(e.message)
+        }
 
     })
-
-    console.log("Extras finalizado.");
 
 }
 //endregion
 
-// ------------------------ [call] Perform [js]
+// ------------------------ [call] PerformAll
 //region
-Perform().then(resultado => {
-    BundleRelease(resultado);
-});
-//endregion
+const PerformAll = () => {
 
-// ------------------------ [call] PerformCss
-//region
-PerformCss().then(resultado => {
-    BundleCss(resultado)
-})
-//endregion
+    PerformJs().then(resultadoJs => {
+        BundleJs(resultadoJs).then(js => {
+            PerformCss().then(resultadoCss => {
+                BundleCss(resultadoCss).then(css => {
+                    PerformExtras().then(resultadoExtras => {
+                        BundleExtras(resultadoExtras).then(extras => {
+                            setTimeout(() => {
+                                performAllControl = true;
+                            }, 3000);
+                        })
+                    });
+                })
+            });
+        });
+    });
 
-// ------------------------ [call] PerformExtras
-//region
-PerformExtras().then(resultado => {
-    BundleExtras(resultado)
-})
+}
+PerformAll();
 //endregion
