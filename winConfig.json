@@ -2,7 +2,7 @@
 
     "construtos_path": "./construtos.html",
 
-    "livereload":"winnetou",
+    "livereload": "winnetou",
 
     "outputs":
     {
@@ -23,19 +23,22 @@
     "js": [
         "./_public__dev__/js",
         "./classes.js",
-        "./motor.js",
-        "./n.js"
+        "./motor.js"
+        
     ],
 
     "css": [
         "./_public__dev__/css",
-        "./estilo.css"
+        "./estilo.css",
+        "./nao-e-possivel.css"
+
 
     ],
 
     "sass": [
         "./_public__dev__/sass",
-        "./estilos.scss"
+        "./estilos.scss",
+        "./oque.scss"
 
     ],
 
@@ -50,7 +53,8 @@
     {
         "minifyHTML": [
             "./Teste_prod.htm",
-            "./Teste_dev.htm"
+            "./Teste_dev.htm",
+            "./esse-html-tbm-nao.htm"
         ]
     }
 

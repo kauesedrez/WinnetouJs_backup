@@ -158,7 +158,7 @@ const drawAddError = text => {
 
     contadorDeErros++;
 
-    console.log("> [added error skip] " + text);
+    console.log("\n> [error on add (skip)] " + text + "\n");
 
 }
 
@@ -186,15 +186,15 @@ const drawFinal = () => {
     drawBlankLine();
     drawText("All tasks completed");
     drawBlankLine();
-    if(contadorDeErros>0){
-        drawText("... with "+contadorDeErros+" errors");
+    if (contadorDeErros > 0) {
+        drawText("... with " + contadorDeErros + " errors");
         drawBlankLine();
     }
-    if(contadorDeWarnings>0){
-        drawText("... with "+contadorDeWarnings+" warnings");
+    if (contadorDeWarnings > 0) {
+        drawText("... with " + contadorDeWarnings + " warnings");
         drawBlankLine();
     }
-    if (config.livereload){
+    if (config.livereload) {
         drawText("... watching " + config.livereload);
         drawBlankLine();
     }
@@ -349,7 +349,7 @@ if (config.livereload) {
 
                 })
             } catch (e) {
-                drawError("Watch error: "+e.message+". Unless you fix this error watch will not work fully.")
+                drawError("Watch error: " + e.message + ". Unless you fix this error watch will not work fully.")
             }
 
             break;
@@ -442,6 +442,13 @@ const adicionarWinnetouAoBundle = () => {
 const adicionarArquivoAoBundle = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function(err, data) {
+            if (err) {
+                try {
+                    drawAddError(arquivo + ", original error: " + err);
+                    return resolve({ nome: arquivo, codigo: "" });
+                } catch (e) { return reject(e); }
+
+            }
             const arq = data;
             try {
                 babel.transform(arq, { presets: ["@babel/preset-env"], retainLines: true }, function(err, result) {
@@ -467,6 +474,14 @@ const adicionarSassAoBundleCss = async (arquivo) => {
                 file: arquivo
             }, function(err, result) {
 
+                if (err) {
+                    try {
+                        drawAddError(arquivo + ", original error: " + err);
+                        return resolve("");
+                    } catch (e) { return reject(e); }
+
+                }
+
                 drawAdd(arquivo)
                 if (err) console.log("\n\nERRO: " + err, arquivo)
                 return resolve(result.css);
@@ -485,10 +500,19 @@ const adicionarSassAoBundleCss = async (arquivo) => {
 const adicionarArquivoAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function(err, data) {
+
+            if (err) {
+                try {
+                    drawAddError(arquivo + ", original error: " + err);
+                    return resolve("");
+                } catch (e) { return reject(e); }
+
+            }
+
             const arq = data;
             try {
                 drawAdd(arquivo)
-                if (err) console.log("\n\nERRO adicionarArquivoAoBundleCss: " + err, arquivo)
+
                 return resolve(arq);
 
             } catch (e) {
@@ -562,9 +586,9 @@ const minifyHTML = async (arquivo) => {
 
     return new Promise((resolve, reject) => {
 
-        const htmlString = fs.readFileSync(arquivo, "utf8");
-
         try {
+
+            const htmlString = fs.readFileSync(arquivo, "utf8");
 
             drawHtmlMin(arquivo)
 
@@ -576,12 +600,17 @@ const minifyHTML = async (arquivo) => {
                 removeComments: true,
                 removeEmptyAttributes: true
             }); // node module que minifica o HTML
+
             return resolve(res);
 
         } catch (e) {
 
-            console.log("\n\nERRO [!] - Minificar HTML: " + e.message, "Arquivo com erro: " + arquivo + "\n\n")
-            return reject(e.message);
+            try {
+                drawAddError(arquivo + ", original error: " + e.message);
+                return resolve(false)
+            } catch (e2) {
+                return reject(false);
+            }
         }
 
     });
@@ -763,7 +792,8 @@ const PerformExtras = async () => {
             let arquivo = await minifyHTML(config.extras.minifyHTML[i]);
             // arquivo é o codigo html já minificado
             // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
-            codeHTML.push({ code: arquivo, path: config.extras.minifyHTML[i] });
+            if (arquivo)
+                codeHTML.push({ code: arquivo, path: config.extras.minifyHTML[i] });
         } else {
             // é diretório
 
