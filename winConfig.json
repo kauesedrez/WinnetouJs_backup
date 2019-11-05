@@ -2,7 +2,7 @@
 
     "construtos_path": "./construtos.html",
 
-    "livereload":"none", 
+    "livereload":"sass",
 
     "outputs":
     {
@@ -13,14 +13,13 @@
     },
 
     "bundleJsUrl": [
-        "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+
     ],
 
     "bundleCssUrl": [],
 
     "js": [
         "./_public__dev__/js",
-        "./_public__dev__/js2",
         "./classes.js",
         "./motor.js",
         "./inexistente.js"
@@ -28,7 +27,6 @@
 
     "css": [
         "./_public__dev__/css",
-        "./_public__dev__/css2",
         "./estilo.css"
 
     ],
@@ -41,7 +39,7 @@
     "builtIns":
     {
         "jquery": "latest",
-        "bootstrapJs": "none",
+        "bootstrapJs": "latest",
         "bootstrapCss": "latest"
     },
 

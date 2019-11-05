@@ -70,17 +70,21 @@ const drawTextBlock = (text) => {
 }
 
 const drawBlankLine = () => {
+
     drawText();
+
 }
 
 const drawSpace = () => {
+
     console.log("\n");
+
 }
 
 const drawError = text => {
     drawLine();
     drawBlankLine();
-    drawText("E R R O R  ------ ");
+    drawText("[ X ] Error");
     drawBlankLine();
     drawLine();
     drawBlankLine();
@@ -139,6 +143,43 @@ const drawWelcome = () => {
 
 }
 
+const drawAdd = text => {
+
+    console.log("> [added] " + text);
+
+}
+
+const drawAddError = text => {
+
+    console.log("> [added error skip] " + text);
+
+}
+
+const drawHtmlMin = text => {
+
+    console.log("> [html minifield] " + text);
+
+}
+
+const drawEnd = text => {
+
+    console.log("> [Bundle Release Finished] " + text);
+
+}
+
+const drawFinal = () => {
+
+    drawLine();
+    drawBlankLine();
+    drawText("All tasks completed");
+    drawBlankLine();
+    if (config.livereload)
+        drawText("... watching " + config.livereload);
+    drawLine();
+    drawSpace();
+
+}
+
 drawWelcome();
 
 //endregion
@@ -150,7 +191,7 @@ try {
     config = require('./winConfig.json');
 } catch (e) {
 
-    console.log("Configuration file error or missing; exit code 0.");
+    drawError("Configuration file (winConfig.json) error or missing; original error: " + e.message);
     return;
 }
 
@@ -230,8 +271,6 @@ if (config.livereload) {
 
         case "sass":
 
-            console.log("\n\n>>> Watching Sass\n\n\n")
-
             var locaisSass = [];
 
             for (let i = 0; i < config.sass.length; i++) {
@@ -302,7 +341,7 @@ const adicionarConstrutosAoBundle = () => {
             `;
             try {
                 babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
-                    console.log('Adicionando construtos');
+                    drawAdd("Winnetou construtos")
                     return resolve(result.code);
                 });
             } catch (e) {
@@ -330,7 +369,7 @@ const adicionarWinnetouAoBundle = () => {
                     if (err) { console.log(err); return; }
 
                     resultWinnetou = result.code;
-                    console.log('Adicionando Winnetou');
+                    drawAdd("Winnetou core")
                     return resolve(result.code);
                 });
             } catch (e) {
@@ -350,7 +389,7 @@ const adicionarArquivoAoBundle = async (arquivo) => {
             const arq = data;
             try {
                 babel.transform(arq, { presets: ["@babel/preset-env"], retainLines: true }, function(err, result) {
-                    console.log('Adicionando ' + arquivo);
+                    drawAdd(arquivo)
                     if (err) console.log("\n\nERRO: " + err, arquivo)
                     return resolve({ nome: arquivo, codigo: result.code });
                 });
@@ -372,7 +411,7 @@ const adicionarSassAoBundleCss = async (arquivo) => {
                 file: arquivo
             }, function(err, result) {
 
-                console.log('Adicionando SASS: ' + arquivo);
+                drawAdd(arquivo)
                 if (err) console.log("\n\nERRO: " + err, arquivo)
                 return resolve(result.css);
             });
@@ -392,7 +431,7 @@ const adicionarArquivoAoBundleCss = async (arquivo) => {
         fs.readFile(arquivo, function(err, data) {
             const arq = data;
             try {
-                console.log('Adicionando CSS: ' + arquivo);
+                drawAdd(arquivo)
                 if (err) console.log("\n\nERRO adicionarArquivoAoBundleCss: " + err, arquivo)
                 return resolve(arq);
 
@@ -413,7 +452,7 @@ const adicionarURLAoBundle = async (url) => {
 
             // não se pode adicionar min ao bundle pois quebra o mapping
             try {
-                drawError("Don't add minifield js file into winnetouBundle. Please insert via tag in your html source. "+url);
+                drawError("Don't add minifield js file into winnetouBundle. Please insert via tag in your html source. " + url);
                 return resolve(false);
             } catch (e) {
                 return reject(false);
@@ -424,7 +463,7 @@ const adicionarURLAoBundle = async (url) => {
                 const arq = data;
                 try {
                     babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
-                        console.log('Adicionando ' + url);
+                        drawAdd(url);
                         return resolve({ nome: url, codigo: result.code });
                     });
                 } catch (e) {
@@ -447,7 +486,8 @@ const adicionarURLAoBundleCss = async (url) => {
 
             try {
                 if (error) console.log("ERROR adicionarURLAoBundleCss", error)
-                console.log('Css Url Adicionado: ' + url);
+                drawAdd(url)
+
                 return resolve(data);
 
             } catch (e) {
@@ -469,7 +509,8 @@ const minifyHTML = async (arquivo) => {
         const htmlString = fs.readFileSync(arquivo, "utf8");
 
         try {
-            console.log('HTML Minificado: ' + arquivo);
+
+            drawHtmlMin(arquivo)
 
             var res = htmlMinify(htmlString, {
                 removeAttributeQuotes: true,
@@ -497,9 +538,10 @@ const PerformJs = async () => {
 
     //jquery sempre primeiro
     if (config.builtIns.jquery === "latest") {
-        let jquery = await adicionarURLAoBundle("https://code.jquery.com/jquery-3.4.1.js");
 
+        let jquery = await adicionarURLAoBundle("https://code.jquery.com/jquery-3.4.1.js");
         code["BUILT-IN JQUERY.JS 3.4.1"] = jquery.codigo;
+
     }
 
     for (let i = 0; i < config.bundleJsUrl.length; i++) {
@@ -546,7 +588,7 @@ const PerformJs = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+                    drawAdd(nome + "/" + files[a])
 
                     let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
 
@@ -554,7 +596,8 @@ const PerformJs = async () => {
 
                 }
             } catch (e) {
-                console.log("Ignored Error -> " + e.message)
+
+                drawAddError(e.message)
             }
 
         }
@@ -599,7 +642,7 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+                    drawAdd(nome + "/" + files[a]);
 
                     let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
 
@@ -608,7 +651,7 @@ const PerformCss = async () => {
                 }
 
             } catch (e) {
-                console.log("Ignored Error -> " + e.message)
+                drawAddError(e.message)
             }
 
         }
@@ -631,7 +674,7 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+                    drawAdd(nome + "/" + files[a]);
 
                     let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
 
@@ -640,7 +683,7 @@ const PerformCss = async () => {
                 }
 
             } catch (e) {
-                console.log("Ignored Error -> " + e.message)
+                drawAddError(e.message)
             }
 
         }
@@ -673,7 +716,7 @@ const PerformExtras = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    console.log("\n\n>>> files: " + nome + "/" + files[a])
+                    drawAdd(nome + "/" + files[a]);
 
                     let arquivo = await minifyHTML(nome + "/" + files[a]);
                     // arquivo é o codigo html já minificado
@@ -684,7 +727,7 @@ const PerformExtras = async () => {
                 }
 
             } catch (e) {
-                console.log("Ignored Error -> " + e.message)
+                drawAddError(e.message)
             }
 
         }
@@ -725,7 +768,7 @@ const BundleJs = async (dados) => {
     });
     let promisse4 = promisse3;
 
-    console.log('\n\n === Bundle JS Finished === \n\n');
+    drawEnd('bundleWinnetou.min.js')
     return new Promise((resolve, reject) => {
         if (error) reject(error);
         else
@@ -737,7 +780,6 @@ const BundleJs = async (dados) => {
 // ------------------------ BundleCss
 //region
 const BundleCss = async (dados) => {
-    console.log('Gerando Bundle CSS');
 
     let stringU = "";
     dados.forEach(item => {
@@ -758,7 +800,7 @@ const BundleCss = async (dados) => {
     });
     let promisse2 = promisse;
 
-    console.log('\n\n === Bundle CSS Finished === \n\n');
+    drawEnd('bundleWinnetouStyles.min.css')
     return new Promise((resolve, reject) => {
         if (error) reject(false);
         else
@@ -787,7 +829,7 @@ const BundleExtras = async (dados) => {
 
             }
 
-            console.log('\n\n === Bundle Extras Finished === \n\n');
+            drawEnd('Minifields html sources')
             resolve(true);
         } catch (e) {
             reject(e.message)
@@ -810,6 +852,7 @@ const PerformAll = () => {
                         BundleExtras(resultadoExtras).then(extras => {
                             setTimeout(() => {
                                 performAllControl = true;
+                                drawFinal();
                             }, 3000);
                         })
                     });
