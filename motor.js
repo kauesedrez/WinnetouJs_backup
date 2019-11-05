@@ -17,6 +17,14 @@ W.create('componenteTexto1', 'body', {
     texto: 'Para construir tabelas com winnetou, não se deve usar div winnetou e sim table winnetou, tem um exemplo nos construtos',
 });
 
+W.create('componenteTexto2', 'body', {
+    texto: 'Texto 2',
+});
+
+W.create('componenteTexto3', 'body', {
+    texto: 'Você não está logado',
+});
+
 var mensagem = new Msg("ola mundo", "blue");
 mensagem.show();
 
@@ -28,4 +36,4 @@ var foo = Array.from("foo");
 mensagem.msg = "Array.from fora do winnetou: " + foo[0];
 mensagem.show();
 
-$("body").css("background-color","blue");
+// $("body").css("background-color","blue");

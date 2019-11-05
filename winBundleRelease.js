@@ -385,26 +385,49 @@ const sassDev = arquivo => {
 // Cria a const que armazena os construtos, passando de html para ES2019
 // Usa Babel para ter compatibilidade ie9+ via polyfill no html
 //region
-const adicionarConstrutosAoBundle = () => {
+const lerConstruto = async (arquivo) => {
     return new Promise((resolve, reject) => {
-        fs.readFile(construtos_path, function(err, data) {
-            const arq = `
-            var Componentes =\`${data}\`;
+        try {
+            fs.readFile(arquivo, function(err, data) {
+
+                return resolve(data);
+
+            });
+        } catch (e) {
+            return reject(e.message);
+        }
+
+    });
+}
+const adicionarConstrutosAoBundle = async () => {
+    return new Promise(async (resolve, reject) => {
+
+        let files = fs.readdirSync(construtos_path);
+
+        let res = "";
+
+        for (let a = 0; a < files.length; a++) {
+            let tmp = await lerConstruto(construtos_path + "/" + files[a]);
+            res += tmp;
+        }
+
+        const arq = `
+            var Componentes =\`${res}\`;
             var Div = document.createElement('div');
             Div.innerHTML = Componentes;
             Componentes = Div.getElementsByClassName("winnetou");
             Div = null;
             `;
-            try {
-                babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
-                    drawAdd("Winnetou construtos")
-                    return resolve(result.code);
-                });
-            } catch (e) {
-                console.log(e.message)
-                return reject(e.message);
-            }
-        });
+        try {
+            babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
+                drawAdd("Winnetou construtos")
+                return resolve(result.code);
+            });
+        } catch (e) {
+            console.log(e.message)
+            return reject(e.message);
+        }
+
     });
 }
 //endregion
