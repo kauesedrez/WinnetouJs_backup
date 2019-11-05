@@ -38,7 +38,7 @@
 
     "builtIns":
     {
-        "jquery": "none",
+        "jquery": "latest",
         "bootstrapJs": "none",
         "bootstrapCss": "none"
     },

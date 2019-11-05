@@ -27,19 +27,184 @@ try {
     version = "Warning! Arquivo version.json não localizado."
 }
 var config;
+//endregion
+
+// ------------------------ padronização de logs
+//region
+
+const drawLine = (size = 80) => {
+    let line = "";
+    for (let i = 0; i < size; i++) {
+        if (i == 1) line += " ";
+        else if (i == (size - 2)) line += " ";
+        else line += "=";
+    }
+    console.log(line);
+}
+
+const drawText = (text = "", size = 80) => {
+
+    let line = "= " + text;
+
+    let tamanho = line.length;
+
+    for (let i = 0; i < (size - tamanho); i++) {
+
+        if (i == (size - tamanho - 1))
+            line += "=";
+        else
+            line += " ";
+    }
+
+    console.log(line);
+}
+
+const drawTextBlock = (text) => {
+
+    let arr = text.match(/.{1,74}/g);
+
+    arr.forEach(item => {
+        drawText(item)
+    })
+
+}
+
+const drawBlankLine = () => {
+    drawText();
+}
+
+const drawSpace = () => {
+    console.log("\n");
+}
+
+const drawError = text => {
+    drawLine();
+    drawBlankLine();
+    drawText("E R R O R  ------ ");
+    drawBlankLine();
+    drawLine();
+    drawBlankLine();
+    drawTextBlock(text);
+    drawBlankLine();
+    drawText("Find online help in");
+    drawText("www.cedrosdev.com.br/winnetoujs");
+    drawBlankLine();
+    drawLine();
+    drawSpace();
+}
+
+const drawWarning = text => {
+    drawLine();
+    drawBlankLine();
+    drawText("[ ! ] Warning");
+    drawBlankLine();
+    drawLine();
+    drawBlankLine();
+    drawTextBlock(text);
+    drawBlankLine();
+    drawText("Find online help in");
+    drawText("www.cedrosdev.com.br/winnetoujs");
+    drawBlankLine();
+    drawLine();
+    drawSpace();
+}
+
+const drawWelcome = () => {
+    console.clear();
+    drawLine();
+    drawBlankLine();
+    drawBlankLine();
+    drawText("W I N N E T O U J S ");
+    drawBlankLine();
+    drawText("T h e  i n d i e  j a v a s c r i p t  c o n s t r u c t o r");
+    drawBlankLine();
+    drawBlankLine();
+    drawLine();
+    drawBlankLine();
+    drawText("Find online help and docs");
+    drawText("www.cedrosdev.com.br/winnetoujs");
+    drawBlankLine();
+    drawText("Fork on GitHub");
+    drawText("https://github.com/kauesedrez/WinnetouJs.git");
+    drawBlankLine();
+    drawText("(c) Cedros Development");
+    drawText("@winetukaue | kaue.sedrez@gmail.com");
+    drawBlankLine();
+    drawLine();
+    drawBlankLine();
+    drawText(" -- version: " + version.version);
+    drawBlankLine();
+    drawLine();
+    drawSpace();
+
+}
+
+drawWelcome();
+
+//endregion
+
+// ------------------------ validação do arquivo winConfig.json
+//region
+
 try {
     config = require('./winConfig.json');
 } catch (e) {
+
     console.log("Configuration file error or missing; exit code 0.");
     return;
 }
+
+// rotinas de inspeção
+
+// construtos_path [mandatory!]
+if (typeof config.construtos_path != "string") {
+    drawError("winConfig.json missing or wrong construtos_path value. Must be <string>.");
+    return;
+}
+
+if (typeof config.livereload == "string") {
+    if (config.livereload != "winnetou" && config.livereload != "sass") {
+        drawWarning("Live Reload needs to be 'winnetou' or 'sass' in current version.Insert into your winConfig.json this value: \"livereload\":\"winnetou\"");
+    }
+}
+if (!config.outputs) config.outputs = [];
+if (!config.outputs.js) {
+    config.outputs.js = "./public/js";
+    drawWarning("Javascript bundle file output not defined. Using defaults: './public/js' .")
+}
+if (!config.outputs.css) {
+    config.outputs.css = "./public/css";
+    drawWarning("CSS bundle file output not defined. Using defaults: './public/css' .")
+}
+
+if (!config.bundleJsUrl) config.bundleJsUrl = [];
+if (!config.bundleCssUrl) config.bundleCssUrl = [];
+if (!config.js) config.js = [];
+if (!config.css) config.css = [];
+if (!config.sass) config.sass = [];
+if (!config.bundleCssUrl) config.bundleCssUrl = [];
+
+
+if (!config.builtIns) config.builtIns = [];
+
+if (!config.builtIns.jquery) config.builtIns.jquery = "none";
+if (!config.builtIns.bootstrapJs) config.builtIns.bootstrapJs = "none";
+if (!config.builtIns.bootstrapCss) config.builtIns.bootstrapCss = "none";
+
+if (!config.extras) config.extras = [];
+if (!config.extras.minifyHTML) config.extras.minifyHTML = [];
+
+
+
+
+
+
+
 
 //endregion
 
 // ------------------------ variáveis globais
 //region
-console.log('Bem Vindo ao WinnetouJS');
-console.log('Version ' + version.version);
 const construtos_path = config.construtos_path;
 const output = config.output;
 var code = {};
@@ -168,7 +333,7 @@ const adicionarWinnetouAoBundle = () => {
                     "presets": [
                         "@babel/preset-env"
                     ],
-                    retainLines:true
+                    retainLines: true
                 }, function(err, result) {
                     if (err) { console.log(err); return; }
 
@@ -192,10 +357,10 @@ const adicionarArquivoAoBundle = async (arquivo) => {
         fs.readFile(arquivo, function(err, data) {
             const arq = data;
             try {
-                babel.transform(arq, { presets: ["@babel/preset-env"], retainLines:true }, function(err, result) {
+                babel.transform(arq, { presets: ["@babel/preset-env"], retainLines: true }, function(err, result) {
                     console.log('Adicionando ' + arquivo);
                     if (err) console.log("\n\nERRO: " + err, arquivo)
-                    return resolve({nome:arquivo,codigo:result.code});
+                    return resolve({ nome: arquivo, codigo: result.code });
                 });
             } catch (e) {
                 console.log(e.message)
@@ -543,7 +708,7 @@ const PerformExtras = async () => {
 //region
 const BundleJs = async (dados) => {
 
-        var result = UglifyJS.minify(dados, {
+    var result = UglifyJS.minify(dados, {
         sourceMap: {
             filename: "./bundleWinnetou.min.js",
             url: "./bundleWinnetou.min.js.map"
@@ -569,8 +734,6 @@ const BundleJs = async (dados) => {
         if (err) error = err;
     });
     let promisse4 = promisse3;
-
-
 
     console.log('\n\n === Bundle JS Finished === \n\n');
     return new Promise((resolve, reject) => {
