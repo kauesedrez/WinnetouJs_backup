@@ -32,6 +32,9 @@ var config;
 // ------------------------ padronização de logs
 //region
 
+var contadorDeErros = 0;
+var contadorDeWarnings = 0;
+
 const drawLine = (size = 80) => {
     let line = "";
     for (let i = 0; i < size; i++) {
@@ -82,6 +85,7 @@ const drawSpace = () => {
 }
 
 const drawError = text => {
+    contadorDeErros++;
     drawLine();
     drawBlankLine();
     drawText("[ X ] Error");
@@ -98,6 +102,7 @@ const drawError = text => {
 }
 
 const drawWarning = text => {
+    contadorDeWarnings++;
     drawLine();
     drawBlankLine();
     drawText("[ ! ] Warning");
@@ -151,6 +156,8 @@ const drawAdd = text => {
 
 const drawAddError = text => {
 
+    contadorDeErros++;
+
     console.log("> [added error skip] " + text);
 
 }
@@ -167,14 +174,30 @@ const drawEnd = text => {
 
 }
 
+const drawChange = text => {
+
+    console.log("> [Modified file] " + text);
+
+}
+
 const drawFinal = () => {
 
     drawLine();
     drawBlankLine();
     drawText("All tasks completed");
     drawBlankLine();
-    if (config.livereload)
+    if(contadorDeErros>0){
+        drawText("... with "+contadorDeErros+" errors");
+        drawBlankLine();
+    }
+    if(contadorDeWarnings>0){
+        drawText("... with "+contadorDeWarnings+" warnings");
+        drawBlankLine();
+    }
+    if (config.livereload){
         drawText("... watching " + config.livereload);
+        drawBlankLine();
+    }
     drawLine();
     drawSpace();
 
@@ -279,23 +302,56 @@ if (config.livereload) {
             }
 
             watch(locaisSass, { recursive: false }, function(evt, name) {
-                console.log("\n\n Teste: " + name)
-                sassDev(name);
+                if (performAllControl) {
+                    performAllControl = false;
+                    sassDev(name);
+                }
             });
             break;
 
         case "winnetou":
-            watch(__dirname, { recursive: true }, function(evt, name) {
-                // atenção, recursive não funciona no linux
 
-                if (performAllControl) {
-                    console.log("\n\n Arquivo alterado, recompilando winnetou: " + name)
-                    performAllControl = false;
-                    ClearCache();
-                    PerformAll();
-                }
+            var locaisWinnetou = [];
 
-            });
+            locaisWinnetou.push(config.construtos_path);
+
+            for (let i = 0; i < config.js.length; i++) {
+
+                locaisWinnetou.push(config.js[i])
+            }
+
+            for (let i = 0; i < config.css.length; i++) {
+
+                locaisWinnetou.push(config.css[i])
+            }
+
+            for (let i = 0; i < config.sass.length; i++) {
+
+                locaisWinnetou.push(config.sass[i])
+            }
+
+            for (let i = 0; i < config.extras.minifyHTML.length; i++) {
+
+                locaisWinnetou.push(config.extras.minifyHTML[i])
+            }
+
+            try {
+                watch(locaisWinnetou, { recursive: false }, function(evt, name) {
+
+                    if (performAllControl) {
+                        performAllControl = false;
+                        console.clear();
+                        drawWelcome();
+                        drawChange(name);
+                        ClearCache();
+                        PerformAll();
+                    }
+
+                })
+            } catch (e) {
+                drawError("Watch error: "+e.message+". Unless you fix this error watch will not work fully.")
+            }
+
             break;
 
     }
