@@ -184,7 +184,6 @@ if (!config.css) config.css = [];
 if (!config.sass) config.sass = [];
 if (!config.bundleCssUrl) config.bundleCssUrl = [];
 
-
 if (!config.builtIns) config.builtIns = [];
 
 if (!config.builtIns.jquery) config.builtIns.jquery = "none";
@@ -193,13 +192,6 @@ if (!config.builtIns.bootstrapCss) config.builtIns.bootstrapCss = "none";
 
 if (!config.extras) config.extras = [];
 if (!config.extras.minifyHTML) config.extras.minifyHTML = [];
-
-
-
-
-
-
-
 
 //endregion
 
@@ -418,25 +410,22 @@ const adicionarArquivoAoBundleCss = async (arquivo) => {
 const adicionarURLAoBundle = async (url) => {
     return new Promise((resolve, reject) => {
         if (url.includes("min")) {
-            request(url, function(error, response, data) {
-                const arq = data;
-                try {
-                    babel.transform(arq, function(err, result) {
-                        console.log('MIN Adicionando ' + url);
-                        return resolve(result.code);
-                    });
-                } catch (e) {
-                    console.log(e.message)
-                    return reject(e.message);
-                }
-            });
+
+            // não se pode adicionar min ao bundle pois quebra o mapping
+            try {
+                drawError("Don't add minifield js file into winnetouBundle. Please insert via tag in your html source. "+url);
+                return resolve(false);
+            } catch (e) {
+                return reject(false);
+            }
+
         } else {
             request(url, function(error, response, data) {
                 const arq = data;
                 try {
                     babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
                         console.log('Adicionando ' + url);
-                        return resolve(result.code);
+                        return resolve({ nome: url, codigo: result.code });
                     });
                 } catch (e) {
                     console.log(e.message)
@@ -445,7 +434,7 @@ const adicionarURLAoBundle = async (url) => {
             });
         }
 
-    });
+    })
 }
 //endregion
 
@@ -506,26 +495,27 @@ const minifyHTML = async (arquivo) => {
 //region
 const PerformJs = async () => {
 
+    //jquery sempre primeiro
+    if (config.builtIns.jquery === "latest") {
+        let jquery = await adicionarURLAoBundle("https://code.jquery.com/jquery-3.4.1.js");
+
+        code["BUILT-IN JQUERY.JS 3.4.1"] = jquery.codigo;
+    }
+
     for (let i = 0; i < config.bundleJsUrl.length; i++) {
         let arquivo = await adicionarURLAoBundle(config.bundleJsUrl[i]);
-        config.bundleJsUrl[i].includes("min") ? mini.push(arquivo) : code["URL-" + uuid()] = arquivo;
+        if (arquivo)
+            code[arquivo.nome] = arquivo.codigo;
     }
 
     // adiciona as bibliotecas opcionais via winConfig.json
 
     if (config.builtIns.bootstrapJs === "latest") {
 
-        let popper = await adicionarURLAoBundle("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js");
-        mini.push(popper);
+        let bootstrap = await adicionarURLAoBundle("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.js");
 
-        let bootstrap = await adicionarURLAoBundle("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js");
-        mini.push(bootstrap);
+        code["BUILT-IN BOOTSTRAP.JS 4.3.1"] = bootstrap.codigo;
 
-    }
-
-    if (config.builtIns.jquery === "latest") {
-        let jquery = await adicionarURLAoBundle("https://code.jquery.com/jquery-3.4.1.min.js");
-        mini.push(jquery);
     }
 
     // adiciona assets winnetou

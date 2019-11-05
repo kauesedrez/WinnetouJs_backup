@@ -21,9 +21,8 @@ class Winnetou {
                 .replace(/\<\/tbody\>/g, "");
             this.$base[id] = tbodyClean;
         })
-        if (this.debug == "debug") console.log("winnetou log", this.$base);
-        Componentes = null; // garbage collector
-       
+        if (this.debug == "debug" == "debug") console.log("winnetou log", this.$base);
+        Componentes = null; // garbage collecthis.debug == "debug" 
 
     };
 
@@ -72,7 +71,7 @@ class Winnetou {
         // });
 
         for (let item in elements) {
-            console.log("teste array", item)
+            
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
         };
@@ -85,9 +84,9 @@ class Winnetou {
         } else {
             try {
                 document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
-                if (this.debug) console.log("inserido", output);
+                if (this.debug == "debug") console.log("inserido", output);
             } catch (e) {
-                if (this.debug)
+                if (this.debug == "debug")
                     console.log("winnetou error", "erro no append", e.message);
             }
         }

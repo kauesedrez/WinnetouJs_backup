@@ -1,1 +1,1 @@
-alert("ola folders")
+console.log("arquivo teste.js dentro do public dev")

@@ -2,7 +2,7 @@
 
     "construtos_path": "./construtos.html",
 
-    "livereload":"winnetou", 
+    "livereload":"none", 
 
     "outputs":
     {
@@ -12,7 +12,9 @@
 
     },
 
-    "bundleJsUrl": [],
+    "bundleJsUrl": [
+        "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    ],
 
     "bundleCssUrl": [],
 
@@ -40,7 +42,7 @@
     {
         "jquery": "latest",
         "bootstrapJs": "none",
-        "bootstrapCss": "none"
+        "bootstrapCss": "latest"
     },
 
     "extras":

@@ -27,3 +27,5 @@ mensagem.show();
 var foo = Array.from("foo");
 mensagem.msg = "Array.from fora do winnetou: " + foo[0];
 mensagem.show();
+
+$("body").css("background-color","blue");
