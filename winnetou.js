@@ -93,7 +93,7 @@ class Winnetou {
                 if (this.debug == "debug") console.log("inserido", output);
             } catch (e) {
                 if (this.debug == "debug")
-                    console.log("winnetou error", "erro no append", e.message);
+                    console.log("winnetou error", "Append error, trying to add in: <<"+output+">>","The output is correct?", e.message);
             }
         }
     };
