@@ -11,8 +11,8 @@ class Winnetou {
         this.construtorId = 0;
         this.$base = [];
         if (this.debug == "debug") {
-                console.log("\nWinnetou LOG Construtos --- \n")
-            }
+            console.log("\nWinnetou LOG Construtos --- \n")
+        }
         Array.from(Componentes).forEach(componente => {
             var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
             // limpa o tbody
@@ -22,9 +22,9 @@ class Winnetou {
                 .replace(/\<tbody\>/g, "")
                 .replace(/\<\/tbody\>/g, "");
             this.$base[id] = tbodyClean;
-            if (this.debug == "debug") {               
-                console.log("id: "+id)
-                console.log("construto: "+tbodyClean+"\n");
+            if (this.debug == "debug") {
+                console.log("id: " + id)
+                console.log("construto: " + tbodyClean + "\n");
             }
         })
 
@@ -90,10 +90,15 @@ class Winnetou {
         } else {
             try {
                 document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
-                if (this.debug == "debug") console.log("inserido", output);
+                if (this.debug == "debug") console.log(`The element <<${construto}>> was sewn up successfully in <<${output}>>`);
             } catch (e) {
                 if (this.debug == "debug")
-                    console.log("winnetou error", "Append error, trying to add in: <<"+output+">>","The output is correct?", e.message);
+                    console.log(
+                        "winnetou error",
+                        `\nAppend error, trying to add <<${construto}>> in: <<${output}>>\n`,
+                        "The output is correct?",
+                        "\nUsually the output is an already sewn html element, such as an #id, a .class, or a <tag>.\n\n",
+                        e.message);
             }
         }
     };
