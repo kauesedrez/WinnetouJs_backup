@@ -10,7 +10,9 @@ class Winnetou {
         this.version = "0.10.1";
         this.construtorId = 0;
         this.$base = [];
-
+        if (this.debug == "debug") {
+                console.log("\nWinnetou LOG Construtos --- \n")
+            }
         Array.from(Componentes).forEach(componente => {
             var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
             // limpa o tbody
@@ -20,8 +22,12 @@ class Winnetou {
                 .replace(/\<tbody\>/g, "")
                 .replace(/\<\/tbody\>/g, "");
             this.$base[id] = tbodyClean;
+            if (this.debug == "debug") {               
+                console.log("id: "+id)
+                console.log("construto: "+tbodyClean+"\n");
+            }
         })
-        if (this.debug == "debug" == "debug") console.log("winnetou log", this.$base);
+
         Componentes = null; // garbage collecthis.debug == "debug" 
 
     };
@@ -71,7 +77,7 @@ class Winnetou {
         // });
 
         for (let item in elements) {
-            
+
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
         };
