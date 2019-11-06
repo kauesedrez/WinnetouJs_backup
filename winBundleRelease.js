@@ -670,6 +670,14 @@ const PerformJs = async () => {
 
     }
 
+    if (config.builtIns.fontawesome === "latest") {
+
+        let fontawesome = await adicionarURLAoBundle("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.js");
+
+        code["BUILT-IN FONTAWESOME 5.11.2"] = fontawesome.codigo;
+
+    }
+
     // adiciona assets winnetou
     let construtos = await adicionarConstrutosAoBundle();
     code["construtos.js"] = construtos;
