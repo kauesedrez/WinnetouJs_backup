@@ -460,7 +460,7 @@ const adicionarWinnetouAoBundle = () => {
 }
 //endregion
 
-// ------------------------ adicionarArquivoAoBundle
+// ------------------------ adicionarArquivoAoBundle JS
 //region
 const adicionarArquivoAoBundle = async (arquivo) => {
     return new Promise((resolve, reject) => {
@@ -696,7 +696,7 @@ const PerformJs = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    drawAdd(nome + "/" + files[a])
+                    
 
                     let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
 
@@ -750,7 +750,7 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    drawAdd(nome + "/" + files[a]);
+                    
 
                     let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
 
@@ -782,7 +782,7 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    drawAdd(nome + "/" + files[a]);
+                    
 
                     let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
 
@@ -825,7 +825,7 @@ const PerformExtras = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    drawAdd(nome + "/" + files[a]);
+                   
 
                     let arquivo = await minifyHTML(nome + "/" + files[a]);
                     // arquivo é o codigo html já minificado

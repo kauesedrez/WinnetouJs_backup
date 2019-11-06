@@ -1,58 +1,8 @@
 {
-
     "construtos_path": "./winnetouConstrutos",
-
     "livereload": "winnetou",
-
-    "outputs":
-    {
-
-        "js": "./_public/js",
-        "css": "./_public/css"
-
-    },
-
-    "bundleJsUrl": [
-
-    ],
-
-    "bundleCssUrl": [
-
-    ],
-
-    "js": [
-        "./_public__dev__/js",
-        "./classes.js",
-        "./motor.js"
-        
-    ],
-
-    "css": [
-        "./_public__dev__/css",
-        "./estilo.css"
-
-
-    ],
-
-    "sass": [
-        "./_public__dev__/sass",
-        "./estilos.scss"
-
-    ],
-
-    "builtIns":
-    {
-        "jquery": "latest",
-        "bootstrapJs": "latest",
-        "bootstrapCss": "latest"
-    },
-
-    "extras":
-    {
-        "minifyHTML": [
-            "./Teste_prod.htm",
-            "./Teste_dev.htm"
-        ]
+    "outputs":{
+    	"js":"../_public/js",
+    	"css":"../_public/css"
     }
-
 }
