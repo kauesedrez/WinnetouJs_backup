@@ -421,7 +421,11 @@ const adicionarConstrutosAoBundle = async () => {
             Div = null;
             `;
         try {
-            babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
+            babel.transform(arq, {
+                presets: ["@babel/preset-env"],
+                compact: false,
+                retainLines: true
+            }, function(err, result) {
                 drawAdd("Winnetou construtos")
                 return resolve(result.code);
             });
@@ -445,6 +449,7 @@ const adicionarWinnetouAoBundle = () => {
                     "presets": [
                         "@babel/preset-env"
                     ],
+                    compact: false,
                     retainLines: true
                 }, function(err, result) {
                     if (err) { console.log(err); return; }
@@ -476,7 +481,11 @@ const adicionarArquivoAoBundle = async (arquivo) => {
             }
             const arq = data;
             try {
-                babel.transform(arq, { presets: ["@babel/preset-env"], retainLines: true }, function(err, result) {
+                babel.transform(arq, {
+                    presets: ["@babel/preset-env"],
+                    compact: false,
+                    retainLines: true
+                }, function(err, result) {
                     drawAdd(arquivo)
                     if (err) console.log("\n\nERRO: " + err, arquivo)
                     return resolve({ nome: arquivo, codigo: result.code });
@@ -567,7 +576,11 @@ const adicionarURLAoBundle = async (url) => {
             request(url, function(error, response, data) {
                 const arq = data;
                 try {
-                    babel.transform(arq, { presets: ["@babel/preset-env"] }, function(err, result) {
+                    babel.transform(arq, {
+                        presets: ["@babel/preset-env"],
+                        compact: false,
+                        retainLines: true
+                    }, function(err, result) {
                         drawAdd(url);
                         return resolve({ nome: url, codigo: result.code });
                     });
