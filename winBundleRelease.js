@@ -259,7 +259,7 @@ if (!config.extras.minifyHTML) config.extras.minifyHTML = [];
 
 //endregion
 
-// ------------------------ variáveis globais
+// ------------------------ variáveis globais e limpa cache
 //region
 const construtos_path = config.construtos_path;
 const output = config.output;
@@ -278,6 +278,8 @@ ClearCache = () => {
     miniCss = [];
     codeHTML = [];
     performAllControl = false;
+    contadorDeErros = 0;
+    contadorDeWarnings = 0;
 
 }
 
@@ -696,8 +698,6 @@ const PerformJs = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    
-
                     let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
 
                     code[arquivo.nome] = arquivo.codigo;
@@ -750,8 +750,6 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    
-
                     let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
 
                     codeCss.push(arquivo);
@@ -781,8 +779,6 @@ const PerformCss = async () => {
                 let files = fs.readdirSync(nome);
 
                 for (let a = 0; a < files.length; a++) {
-
-                    
 
                     let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
 
@@ -824,8 +820,6 @@ const PerformExtras = async () => {
                 let files = fs.readdirSync(nome);
 
                 for (let a = 0; a < files.length; a++) {
-
-                   
 
                     let arquivo = await minifyHTML(nome + "/" + files[a]);
                     // arquivo é o codigo html já minificado
