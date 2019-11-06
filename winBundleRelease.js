@@ -698,9 +698,13 @@ const PerformJs = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
+                    if (files[a].includes(".js")) {
 
-                    code[arquivo.nome] = arquivo.codigo;
+                        let arquivo = await adicionarArquivoAoBundle(nome + "/" + files[a]);
+
+                        code[arquivo.nome] = arquivo.codigo;
+
+                    }
 
                 }
             } catch (e) {
@@ -745,14 +749,20 @@ const PerformCss = async () => {
 
         } else {
 
+            // é pasta css
+
             try {
                 let files = fs.readdirSync(nome);
 
                 for (let a = 0; a < files.length; a++) {
 
-                    let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
+                    if (files[a].includes(".css")) {
 
-                    codeCss.push(arquivo);
+                        let arquivo = await adicionarArquivoAoBundleCss(nome + "/" + files[a]);
+
+                        codeCss.push(arquivo);
+
+                    }
 
                 }
 
@@ -774,15 +784,20 @@ const PerformCss = async () => {
 
         } else {
 
+            // pastas sass
+
             try {
 
                 let files = fs.readdirSync(nome);
 
                 for (let a = 0; a < files.length; a++) {
 
-                    let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
+                    if (files[a].includes(".scss")) {
 
-                    codeCss.push(arquivo);
+                        let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
+
+                        codeCss.push(arquivo);
+                    }
 
                 }
 
@@ -821,11 +836,14 @@ const PerformExtras = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    let arquivo = await minifyHTML(nome + "/" + files[a]);
-                    // arquivo é o codigo html já minificado
-                    // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
-                    codeHTML.push({ code: arquivo, path: nome + "/" + files[a] });
-                    // ------
+                    if (files[a].includes(".html") || files[a].includes(".htm")) {
+
+                        let arquivo = await minifyHTML(nome + "/" + files[a]);
+                        // arquivo é o codigo html já minificado
+                        // config.extras.minifyHTML[i] é o nome e o path relativo do arquivo
+                        codeHTML.push({ code: arquivo, path: nome + "/" + files[a] });
+                        // ------
+                    }
 
                 }
 
