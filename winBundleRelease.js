@@ -17,7 +17,7 @@ const UglifyJS = require("uglify-js");
 const uuid = require('uuid/v4');
 const request = require('Request');
 const UglifyCss = require('uglifycss');
-const sass = require('node-sass');
+const sass = require('sass');
 const htmlMinify = require('html-minifier').minify;
 const fse = require('fs-extra');
 var version;
