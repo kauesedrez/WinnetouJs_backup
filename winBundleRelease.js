@@ -5,6 +5,8 @@
     Suporte apenas para IE9+
 
     Não funciona no IE8
+    
+    versao online
 
 */
 //endregion
