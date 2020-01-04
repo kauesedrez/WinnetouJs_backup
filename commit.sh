@@ -15,4 +15,4 @@ git push
 
 echo "version.json gravado com sucesso."
 echo "commit e push realizados com sucesso."
-echo "Production Version: %cod%"
+echo "Production Version: $cod"
