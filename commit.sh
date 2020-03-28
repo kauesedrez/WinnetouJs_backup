@@ -5,7 +5,7 @@ read cod
 echo "Entre com o nome da versao: "
 read com
 echo "$cod-$com"
-rm version.json
+rm winnetoujs/version.json
 echo {\"version\":\"$cod\"} >> winnetoujs/version.json
 git add .
 git commit -m "$cod - $com"
