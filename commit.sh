@@ -6,10 +6,10 @@ echo "Entre com o nome da versao: "
 read com
 echo "$cod-$com"
 rm version.json
-echo {"version":"$cod"} >> version.json
+echo {\"version\":\"$cod\"} >> version.json
 
 git add .
-git commit -m "$cod-$com"
+git commit -m "$cod - $com"
 git push
 
 
