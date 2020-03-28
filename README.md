@@ -21,3 +21,4 @@ Com o Sass integrado, todos os seus arquivos css e scss serão compilados em ape
 O bundleWinnetou.min.js também é gerado com o arquivo .map para poder ser inspecionado pelo devtools. 
 
 Veja mais informações na Wiki do projeto.
+1
