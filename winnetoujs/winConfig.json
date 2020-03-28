@@ -1,5 +1,5 @@
 {
-    "construtos_path": "./construtos",
+    "construtos_path": "./constructos",
     "livereload": "winnetou",
     "outputs": {
         "js": "../_public/js",
