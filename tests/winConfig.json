@@ -1,8 +1,0 @@
-{
-    "construtos_path": "./winnetouConstrutos",
-    "livereload": "winnetou",
-    "outputs":{
-    	"js":"../_public/js",
-    	"css":"../_public/css"
-    }
-}
