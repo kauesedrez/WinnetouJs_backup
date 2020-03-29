@@ -4,8 +4,7 @@
 
     Suporte apenas para IE9+
 
-    Não funciona no IE8  
-   
+    Não funciona no IE8
 
 */
 //endregion
@@ -16,7 +15,7 @@ const fs = require('fs');
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
 const uuid = require('uuid/v4');
-const request = require('Request');
+const request = require('request');
 const UglifyCss = require('uglifycss');
 const sass = require('sass');
 const htmlMinify = require('html-minifier').minify;
@@ -304,7 +303,7 @@ if (config.livereload) {
                 locaisSass.push(config.sass[i])
             }
 
-            watch(locaisSass, { recursive: false }, function(evt, name) {
+            watch(locaisSass, { recursive: false }, function (evt, name) {
                 if (performAllControl) {
                     performAllControl = false;
                     sassDev(name);
@@ -339,7 +338,7 @@ if (config.livereload) {
             }
 
             try {
-                watch(locaisWinnetou, { recursive: false }, function(evt, name) {
+                watch(locaisWinnetou, { recursive: false }, function (evt, name) {
 
                     if (performAllControl) {
                         performAllControl = false;
@@ -365,13 +364,13 @@ const sassDev = arquivo => {
 
     sass.render({
         file: arquivo
-    }, function(err, result) {
+    }, function (err, result) {
         console.log("\n\ndentro do result sass render")
         // result.css
 
         var newName = config.outputs.css + "/" + arquivo.replace("scss", "css");
 
-        fse.outputFile(newName, result.css, function(err) {
+        fse.outputFile(newName, result.css, function (err) {
 
             console.log("\n\n>>> Live Reload transpile SASS: " + arquivo);
             return true;
@@ -391,7 +390,7 @@ const sassDev = arquivo => {
 const lerConstruto = async (arquivo) => {
     return new Promise((resolve, reject) => {
         try {
-            fs.readFile(arquivo, function(err, data) {
+            fs.readFile(arquivo, function (err, data) {
 
                 return resolve(data);
 
@@ -426,7 +425,7 @@ const adicionarConstrutosAoBundle = async () => {
                 presets: ["@babel/preset-env"],
                 compact: false,
                 retainLines: true
-            }, function(err, result) {
+            }, function (err, result) {
                 drawAdd("Winnetou construtos")
                 return resolve(result.code);
             });
@@ -443,7 +442,7 @@ const adicionarConstrutosAoBundle = async () => {
 //region
 const adicionarWinnetouAoBundle = () => {
     return new Promise((resolve, reject) => {
-        fs.readFile('./winnetou.js', function(err, data) {
+        fs.readFile('./winnetou.js', function (err, data) {
             const arq = data;
             try {
                 babel.transform(arq, {
@@ -452,7 +451,7 @@ const adicionarWinnetouAoBundle = () => {
                     ],
                     compact: false,
                     retainLines: true
-                }, function(err, result) {
+                }, function (err, result) {
                     if (err) { console.log(err); return; }
 
                     resultWinnetou = result.code;
@@ -472,7 +471,7 @@ const adicionarWinnetouAoBundle = () => {
 //region
 const adicionarArquivoAoBundle = async (arquivo) => {
     return new Promise((resolve, reject) => {
-        fs.readFile(arquivo, function(err, data) {
+        fs.readFile(arquivo, function (err, data) {
             if (err) {
                 try {
                     drawAddError(arquivo + ", original error: " + err);
@@ -486,7 +485,7 @@ const adicionarArquivoAoBundle = async (arquivo) => {
                     presets: ["@babel/preset-env"],
                     compact: false,
                     retainLines: true
-                }, function(err, result) {
+                }, function (err, result) {
                     drawAdd(arquivo)
                     if (err) console.log("\n\nERRO: " + err, arquivo)
                     return resolve({ nome: arquivo, codigo: result.code });
@@ -507,7 +506,7 @@ const adicionarSassAoBundleCss = async (arquivo) => {
         try {
             sass.render({
                 file: arquivo
-            }, function(err, result) {
+            }, function (err, result) {
 
                 if (err) {
                     try {
@@ -534,7 +533,7 @@ const adicionarSassAoBundleCss = async (arquivo) => {
 //region
 const adicionarArquivoAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
-        fs.readFile(arquivo, function(err, data) {
+        fs.readFile(arquivo, function (err, data) {
 
             if (err) {
                 try {
@@ -574,14 +573,14 @@ const adicionarURLAoBundle = async (url) => {
             }
 
         } else {
-            request(url, function(error, response, data) {
+            request(url, function (error, response, data) {
                 const arq = data;
                 try {
                     babel.transform(arq, {
                         presets: ["@babel/preset-env"],
                         compact: false,
                         retainLines: true
-                    }, function(err, result) {
+                    }, function (err, result) {
                         drawAdd(url);
                         return resolve({ nome: url, codigo: result.code });
                     });
@@ -601,7 +600,7 @@ const adicionarURLAoBundle = async (url) => {
 const adicionarURLAoBundleCss = async (url) => {
     return new Promise((resolve, reject) => {
 
-        request(url, function(error, response, data) {
+        request(url, function (error, response, data) {
 
             try {
                 if (error) console.log("ERROR adicionarURLAoBundleCss", error)
@@ -900,13 +899,13 @@ const BundleJs = async (dados) => {
     })
 
     let error = false;
-    let promisse = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', resultJs, function(err) {
+    let promisse = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js', resultJs, function (err) {
         if (err) error = err;
     });
     let promisse2 = promisse;
 
     // sourcemap
-    let promisse3 = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js.map', result.map, function(err) {
+    let promisse3 = await fse.outputFile(config.outputs.js + '/bundleWinnetou.min.js.map', result.map, function (err) {
         if (err) error = err;
     });
     let promisse4 = promisse3;
@@ -924,7 +923,17 @@ const BundleJs = async (dados) => {
 //region
 const BundleCss = async (dados) => {
 
-    let stringU = "";
+    //css predefinidos para o funcionamento do winnetoujs
+    let stringU = `
+        .show_asz__ {
+            opacity: 1;
+            }
+        .hide_asz__ {
+            opacity: 0;
+            transition: opacity 400ms;
+            }                
+    `;
+
     dados.forEach(item => {
         stringU += item;
     })
@@ -935,7 +944,7 @@ const BundleCss = async (dados) => {
     })
 
     let error = false;
-    let promisse = await fse.outputFile(config.outputs.css + '/bundleWinnetouStyles.min.css', result, function(err) {
+    let promisse = await fse.outputFile(config.outputs.css + '/bundleWinnetouStyles.min.css', result, function (err) {
         if (err) {
             console.log(">>ERR", err);
             error = err;
@@ -966,7 +975,7 @@ const BundleExtras = async (dados) => {
         try {
             for (let i = 0; i < dados.length; i++) {
                 //console.log("extras: ",dados[i])
-                let promisse = await fs.writeFile(dados[i].path.replace(".html", ".min.html").replace(".htm", ".min.htm"), dados[i].code, err => {});
+                let promisse = await fs.writeFile(dados[i].path.replace(".html", ".min.html").replace(".htm", ".min.htm"), dados[i].code, err => { });
 
                 let promisse2 = promisse;
 
