@@ -1,5 +1,5 @@
 # WinnetouJs
-Manipulação de VDom
+T H E  I N D I E  J A V A S C R I P T  C O N S T R U C T O R
 
 
 ## O que é o WinnetouJs
