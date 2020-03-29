@@ -252,7 +252,10 @@ if (!config.builtIns) config.builtIns = [];
 
 if (!config.builtIns.jquery) config.builtIns.jquery = "none";
 if (!config.builtIns.bootstrapJs) config.builtIns.bootstrapJs = "none";
+if (!config.builtIns.fontawesome) config.builtIns.fontawesome = "none";
 if (!config.builtIns.bootstrapCss) config.builtIns.bootstrapCss = "none";
+
+
 
 if (!config.extras) config.extras = [];
 if (!config.extras.minifyHTML) config.extras.minifyHTML = [];
@@ -401,6 +404,7 @@ const lerConstruto = async (arquivo) => {
 
     });
 }
+
 const adicionarConstrutosAoBundle = async () => {
     return new Promise(async (resolve, reject) => {
 
@@ -740,8 +744,8 @@ const PerformJs = async () => {
     // });
 
     return code;
+    //endregion
 };
-//endregion
 
 // ------------------------ PerformCss and sass
 //region
@@ -759,6 +763,15 @@ const PerformCss = async () => {
         miniCss.push(bootstrapCss);
 
     }
+
+    if (config.builtIns.bulma === "latest") {
+
+        let bulma = await adicionarURLAoBundleCss("https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css");
+        miniCss.push(bulma);
+
+    }
+
+
 
     for (let i = 0; i < config.css.length; i++) {
 
@@ -798,7 +811,7 @@ const PerformCss = async () => {
     for (let i = 0; i < config.sass.length; i++) {
 
         let nome = config.sass[i];
-        if (nome.includes(".scss")) {
+        if (nome.includes(".scss") || nome.includes(".sass")) {
 
             let arquivo = await adicionarSassAoBundleCss(config.sass[i]);
             codeCss.push(arquivo);
@@ -813,7 +826,7 @@ const PerformCss = async () => {
 
                 for (let a = 0; a < files.length; a++) {
 
-                    if (files[a].includes(".scss")) {
+                    if (files[a].includes(".scss") || files[a].includes(".sass")) {
 
                         let arquivo = await adicionarSassAoBundleCss(nome + "/" + files[a]);
 
