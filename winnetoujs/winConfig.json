@@ -1,12 +1,15 @@
 {
     "construtos_path": "./constructos",
-    "livereload": "winnetou",
+    "livereload": false,
     "outputs": {
         "js": "../_public/js",
         "css": "../_public/css"
     },
     "js": [
         "./js_origin"
+    ],
+    "sass": [
+        "./sass_origin"
     ],
     "builtIns": {
         "bulma": "latest"

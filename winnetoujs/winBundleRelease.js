@@ -226,11 +226,7 @@ if (typeof config.construtos_path != "string") {
     return;
 }
 
-if (typeof config.livereload == "string") {
-    if (config.livereload != "winnetou" && config.livereload != "sass") {
-        drawWarning("Live Reload needs to be 'winnetou' or 'sass' in current version.Insert into your winConfig.json this value: \"livereload\":\"winnetou\"");
-    }
-}
+
 if (!config.outputs) config.outputs = [];
 if (!config.outputs.js) {
     config.outputs.js = "./public/js";
@@ -295,70 +291,45 @@ if (config.livereload) {
 
     var watch = require('node-watch');
 
-    switch (config.livereload) {
+    var locaisWinnetou = [];
 
-        case "sass":
+    locaisWinnetou.push(config.construtos_path);
 
-            var locaisSass = [];
+    for (let i = 0; i < config.js.length; i++) {
 
-            for (let i = 0; i < config.sass.length; i++) {
+        locaisWinnetou.push(config.js[i])
+    }
 
-                locaisSass.push(config.sass[i])
+    for (let i = 0; i < config.css.length; i++) {
+
+        locaisWinnetou.push(config.css[i])
+    }
+
+    for (let i = 0; i < config.sass.length; i++) {
+
+        locaisWinnetou.push(config.sass[i])
+    }
+
+    for (let i = 0; i < config.extras.minifyHTML.length; i++) {
+
+        locaisWinnetou.push(config.extras.minifyHTML[i])
+    }
+
+    try {
+        watch(locaisWinnetou, { recursive: false }, function (evt, name) {
+
+            if (performAllControl) {
+                performAllControl = false;
+                console.clear();
+                drawWelcome();
+                drawChange(name);
+                ClearCache();
+                PerformAll();
             }
 
-            watch(locaisSass, { recursive: false }, function (evt, name) {
-                if (performAllControl) {
-                    performAllControl = false;
-                    sassDev(name);
-                }
-            });
-            break;
-
-        case "winnetou":
-
-            var locaisWinnetou = [];
-
-            locaisWinnetou.push(config.construtos_path);
-
-            for (let i = 0; i < config.js.length; i++) {
-
-                locaisWinnetou.push(config.js[i])
-            }
-
-            for (let i = 0; i < config.css.length; i++) {
-
-                locaisWinnetou.push(config.css[i])
-            }
-
-            for (let i = 0; i < config.sass.length; i++) {
-
-                locaisWinnetou.push(config.sass[i])
-            }
-
-            for (let i = 0; i < config.extras.minifyHTML.length; i++) {
-
-                locaisWinnetou.push(config.extras.minifyHTML[i])
-            }
-
-            try {
-                watch(locaisWinnetou, { recursive: false }, function (evt, name) {
-
-                    if (performAllControl) {
-                        performAllControl = false;
-                        console.clear();
-                        drawWelcome();
-                        drawChange(name);
-                        ClearCache();
-                        PerformAll();
-                    }
-
-                })
-            } catch (e) {
-                drawError("Watch error: " + e.message + ". Unless you fix this error watch will not work fully.")
-            }
-
-            break;
-
+        })
+    } catch (e) {
+        drawError("Watch error: " + e.message + ". Unless you fix this error watch will not work fully.")
     }
 
 }
