@@ -1,10 +1,15 @@
 {
-    "construtos_path": "./constructos",
-    "livereload": false,
+    "livereload": true,
     "outputs": {
         "js": "../_public/js",
         "css": "../_public/css"
     },
+    "constructos": [
+        "./constructos/hero.html"
+    ],
+    "constructosUrl": [
+        "https://a3menage.s3.amazonaws.com/winnetoujs-repository/hero_appends_s3.htm"
+    ],
     "js": [
         "./js_origin"
     ],
@@ -12,6 +17,8 @@
         "./sass_origin"
     ],
     "builtIns": {
-        "bulma": "latest"
+        "bulma": "latest",
+        "winnetouBulmaJs": "latest",
+        "fontawesome": "latest"
     }
 }

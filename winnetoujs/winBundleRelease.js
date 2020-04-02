@@ -1,5 +1,5 @@
 // ------------------------ WinnetouJs Bundler
-//region
+
 /*
 
     Suporte apenas para IE9+
@@ -7,10 +7,10 @@
     Não funciona no IE8
 
 */
-//endregion
+
 
 // ------------------------ imports
-//region
+
 const fs = require('fs');
 const babel = require('@babel/core');
 const UglifyJS = require("uglify-js");
@@ -27,10 +27,10 @@ try {
     version = "Warning! Arquivo version.json não localizado."
 }
 var config;
-//endregion
+
 
 // ------------------------ padronização de logs
-//region
+
 
 var contadorDeErros = 0;
 var contadorDeWarnings = 0;
@@ -205,10 +205,10 @@ const drawFinal = () => {
 
 drawWelcome();
 
-//endregion
+
 
 // ------------------------ validação do arquivo winConfig.json
-//region
+
 
 try {
     config = require('./winConfig.json');
@@ -220,13 +220,13 @@ try {
 
 // rotinas de inspeção
 
-// construtos_path [mandatory!]
-if (typeof config.construtos_path != "string") {
-    drawError("winConfig.json missing or wrong construtos_path value. Must be <string>.");
+// constructos [mandatory!]
+if ((!config.constructos || config.constructos.length < 1)
+    &&
+    (!config.constructosUrl || config.constructosUrl.length < 1)) {
+    drawError("winConfig.json missing or wrong constructos value. Must be <array> of <strings> or constructosUrl, <array> of <string> uris.");
     return;
 }
-
-
 if (!config.outputs) config.outputs = [];
 if (!config.outputs.js) {
     config.outputs.js = "./public/js";
@@ -236,31 +236,25 @@ if (!config.outputs.css) {
     config.outputs.css = "./public/css";
     drawWarning("CSS bundle file output not defined. Using defaults: './public/css' .")
 }
-
 if (!config.bundleJsUrl) config.bundleJsUrl = [];
 if (!config.bundleCssUrl) config.bundleCssUrl = [];
 if (!config.js) config.js = [];
 if (!config.css) config.css = [];
 if (!config.sass) config.sass = [];
 if (!config.bundleCssUrl) config.bundleCssUrl = [];
-
 if (!config.builtIns) config.builtIns = [];
-
 if (!config.builtIns.jquery) config.builtIns.jquery = "none";
 if (!config.builtIns.bootstrapJs) config.builtIns.bootstrapJs = "none";
 if (!config.builtIns.fontawesome) config.builtIns.fontawesome = "none";
 if (!config.builtIns.bootstrapCss) config.builtIns.bootstrapCss = "none";
-
-
-
 if (!config.extras) config.extras = [];
 if (!config.extras.minifyHTML) config.extras.minifyHTML = [];
 
-//endregion
+
 
 // ------------------------ variáveis globais e limpa cache
-//region
-const construtos_path = config.construtos_path;
+
+
 const output = config.output;
 var code = {};
 var mini = [];
@@ -282,10 +276,10 @@ ClearCache = () => {
 
 }
 
-//endregion
+
 
 // ------------------------ livereload
-//region
+
 
 if (config.livereload) {
 
@@ -293,7 +287,10 @@ if (config.livereload) {
 
     var locaisWinnetou = [];
 
-    locaisWinnetou.push(config.construtos_path);
+    for (let i = 0; i < config.constructos.length; i++) {
+
+        locaisWinnetou.push(config.constructos[i])
+    }
 
     for (let i = 0; i < config.js.length; i++) {
 
@@ -355,13 +352,11 @@ const sassDev = arquivo => {
 
 }
 
-//endregion
-
 // ------------------------ adicionarConstrutosAoBundle
 // Cria a const que armazena os construtos, passando de html para ES2019
 // Usa Babel para ter compatibilidade ie9+ via polyfill no html
-//region
-const lerConstruto = async (arquivo) => {
+
+const lerConstructo = async (arquivo) => {
     return new Promise((resolve, reject) => {
         try {
             fs.readFile(arquivo, function (err, data) {
@@ -377,23 +372,60 @@ const lerConstruto = async (arquivo) => {
 }
 
 const adicionarConstrutosAoBundle = async () => {
+
     return new Promise(async (resolve, reject) => {
 
-        let files = fs.readdirSync(construtos_path);
+        var res = "";
 
-        let res = "";
+        for (let i = 0; i < config.constructos.length; i++) {
 
-        for (let a = 0; a < files.length; a++) {
-            let tmp = await lerConstruto(construtos_path + "/" + files[a]);
-            res += tmp;
+            let nome = config.constructos[i];
+
+            if (nome.includes(".htm") || nome.includes(".html")) {
+
+                // é arquivo               
+
+                let tmp = await lerConstructo(nome);
+                res += tmp;
+
+                drawAdd("Constructo: " + nome)
+
+            } else {
+
+                // é diretório
+
+                let files = fs.readdirSync(nome);
+
+                for (let a = 0; a < files.length; a++) {
+                    let tmp = await lerConstructo(nome + "/" + files[a]);
+                    res += tmp;
+                    drawAdd("Constructo: " + nome + "/" + files[a])
+                }
+
+            }
+        }
+
+        if (config.constructosUrl && config.constructosUrl.length > 0) {
+
+            for (let i = 0; i < config.constructosUrl.length; i++) {
+
+                let arq = await adicionarConstructoURL(config.constructosUrl[i]);
+                res += arq;
+
+                drawAdd("Constructo: " + config.constructosUrl[i])
+
+            }
+
+
+
         }
 
         const arq = `
             var Componentes =\`${res}\`;
-            var Div = document.createElement('div');
+            var Div = document.createElement('div');        
             Div.innerHTML = Componentes;
             Componentes = Div.getElementsByClassName("winnetou");
-            Div = null;
+            Div = null;   
             `;
         try {
             babel.transform(arq, {
@@ -401,7 +433,7 @@ const adicionarConstrutosAoBundle = async () => {
                 compact: false,
                 retainLines: true
             }, function (err, result) {
-                drawAdd("Winnetou construtos")
+
                 return resolve(result.code);
             });
         } catch (e) {
@@ -411,11 +443,27 @@ const adicionarConstrutosAoBundle = async () => {
 
     });
 }
-//endregion
+
+// ------------------------ adicionarConstructoURL
+
+const adicionarConstructoURL = async (url) => {
+    return new Promise((resolve, reject) => {
+
+        request(url, function (error, response, data) {
+            if (error) {
+                return reject(error)
+            } else {
+                return resolve(data)
+            }
+        });
+
+    });
+}
 
 // ------------------------ adicionarWinnetouAoBundle
-//region
+
 const adicionarWinnetouAoBundle = () => {
+    var resultWinnetou = "";
     return new Promise((resolve, reject) => {
         fs.readFile('./winnetou.js', function (err, data) {
             const arq = data;
@@ -429,9 +477,46 @@ const adicionarWinnetouAoBundle = () => {
                 }, function (err, result) {
                     if (err) { console.log(err); return; }
 
-                    resultWinnetou = result.code;
+                    resultWinnetou += result.code;
                     drawAdd("Winnetou core")
-                    return resolve(result.code);
+
+                    if (config.builtIns.winnetouBulmaJs === "latest") {
+
+                        // adiciona o prototipe bulma ao bundle
+                        fs.readFile('./winnetouBulma.js', function (err2, data2) {
+                            const arq2 = data2;
+                            try {
+                                babel.transform(arq2, {
+                                    "presets": [
+                                        "@babel/preset-env"
+                                    ],
+                                    compact: false,
+                                    retainLines: true
+                                }, function (err2, result2) {
+                                    if (err2) { console.log(err2); return; }
+
+                                    resultWinnetou += result2.code;
+                                    drawAdd("WinnetouBulmaJS")
+
+                                    return resolve(resultWinnetou);
+
+                                });
+
+                            } catch (e2) {
+
+                                console.log(e2.message)
+                                return reject(e2.message);
+
+                            }
+
+                        });
+
+                    } else {
+
+                        return resolve(resultWinnetou);
+
+                    }
+
                 });
             } catch (e) {
                 console.log(e.message)
@@ -440,10 +525,9 @@ const adicionarWinnetouAoBundle = () => {
         });
     });
 }
-//endregion
 
 // ------------------------ adicionarArquivoAoBundle JS
-//region
+
 const adicionarArquivoAoBundle = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function (err, data) {
@@ -472,10 +556,9 @@ const adicionarArquivoAoBundle = async (arquivo) => {
         });
     });
 }
-//endregion
 
 // ------------------------ adicionarSassAoBundleCss
-//region
+
 const adicionarSassAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
         try {
@@ -502,10 +585,9 @@ const adicionarSassAoBundleCss = async (arquivo) => {
 
     });
 }
-//endregion
 
 // ------------------------ adicionarArquivoAoBundleCss
-//region
+
 const adicionarArquivoAoBundleCss = async (arquivo) => {
     return new Promise((resolve, reject) => {
         fs.readFile(arquivo, function (err, data) {
@@ -531,10 +613,9 @@ const adicionarArquivoAoBundleCss = async (arquivo) => {
         });
     });
 }
-//endregion
 
 // ------------------------ adicionarURLAoBundle
-//region
+
 const adicionarURLAoBundle = async (url) => {
     return new Promise((resolve, reject) => {
         if (url.includes("min")) {
@@ -568,10 +649,9 @@ const adicionarURLAoBundle = async (url) => {
 
     })
 }
-//endregion
 
 // ------------------------ adicionarURLAoBundleCss
-//region
+
 const adicionarURLAoBundleCss = async (url) => {
     return new Promise((resolve, reject) => {
 
@@ -591,10 +671,9 @@ const adicionarURLAoBundleCss = async (url) => {
 
     });
 }
-//endregion
 
 // ------------------------ minifyHTML
-//region
+
 const minifyHTML = async (arquivo) => {
 
     return new Promise((resolve, reject) => {
@@ -628,10 +707,9 @@ const minifyHTML = async (arquivo) => {
 
     });
 }
-//endregion
 
 // ------------------------ PerformJs
-//region
+
 const PerformJs = async () => {
 
     //jquery sempre primeiro
@@ -715,11 +793,11 @@ const PerformJs = async () => {
     // });
 
     return code;
-    //endregion
+
 };
 
 // ------------------------ PerformCss and sass
-//region
+
 const PerformCss = async () => {
 
     for (let i = 0; i < config.bundleCssUrl.length; i++) {
@@ -816,10 +894,9 @@ const PerformCss = async () => {
     return codeCss;
 
 }
-//endregion
 
 // ------------------------ PerformExtras
-//region
+
 const PerformExtras = async () => {
 
     for (let i = 0; i < config.extras.minifyHTML.length; i++) {
@@ -861,10 +938,9 @@ const PerformExtras = async () => {
     return codeHTML;
 
 }
-//endregion
 
 // ------------------------ BundleJs
-//region
+
 const BundleJs = async (dados) => {
 
     var result = UglifyJS.minify(dados, {
@@ -901,10 +977,9 @@ const BundleJs = async (dados) => {
             resolve(true);
     })
 }
-//endregion
 
 // ------------------------ BundleCss
-//region
+
 const BundleCss = async (dados) => {
 
     //css predefinidos para o funcionamento do winnetoujs
@@ -943,10 +1018,9 @@ const BundleCss = async (dados) => {
             resolve(true);
     })
 }
-//endregion
 
 // ------------------------ BundleExtras
-//region
+
 const BundleExtras = async (dados) => {
 
     // como nomear os arquivos html?
@@ -974,10 +1048,9 @@ const BundleExtras = async (dados) => {
     })
 
 }
-//endregion
 
 // ------------------------ [call] PerformAll
-//region
+
 const PerformAll = () => {
 
     PerformJs().then(resultadoJs => {
@@ -999,4 +1072,3 @@ const PerformAll = () => {
 
 }
 PerformAll();
-//endregion
