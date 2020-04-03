@@ -18,7 +18,10 @@
     ],
     "builtIns": {
         "bulma": "latest",
-        "winnetouBulmaJs": "latest",
-        "fontawesome": "latest"
-    }
+        "winnetouBulmaJs": "latest"
+    },
+    "icons": [
+        "./icons/material",
+        "./icons/social"
+    ]
 }

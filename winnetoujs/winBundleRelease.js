@@ -650,6 +650,87 @@ const adicionarURLAoBundle = async (url) => {
     })
 }
 
+// ------------------------ adicionarIcones
+
+const adicionarSvg = async (path) => {
+    return new Promise((resolve, reject) => {
+
+        let xmlString = fs.readFileSync(path, "utf8");
+
+        // o que usar no id?
+        // tinha que ser o path + nome do icone
+        // icons_material_github
+        // o path está assim
+        // "./icons/material/menu.svg"
+
+        let regPath = /[a-zA-Z]+/g;
+
+        let id = path.match(regPath);
+
+        id = id.filter(x => x != "svg");
+
+        id = id.join("_");
+
+        let regVb = new RegExp("viewBox=\"(.*?)\"", "gis");
+
+        let reg = new RegExp("<svg(.*?)>(.*?)</svg>", "is");
+
+        if (xmlString) {
+
+            // trata o svg
+
+            let viewBox = xmlString.match(regVb);
+
+            let arr = xmlString.match(reg);
+
+            let symbol = `<symbol ${viewBox} id="${id}">`;
+
+            let cleanFill = arr[2].replace("fill", "data-fill");
+
+            symbol += cleanFill;
+
+            symbol += `</symbol>`
+
+            // agora tenho um array de paths
+            // tenho que colocar dentro do symbol
+
+            return resolve(symbol)
+
+        } else {
+
+            return reject(`Erro ao ler arquivo adicionarIcones() ${path}`)
+
+        }
+
+
+    });
+
+}
+
+const adicionarIcones = async (path) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+            let files = fs.readdirSync(path);
+            let arqs = "";
+
+            for (let a = 0; a < files.length; a++) {
+
+                let svgName = await adicionarSvg(path + "/" + files[a])
+
+                arqs += "\n\t" + svgName;
+
+            }
+            return resolve(arqs);
+        } catch (e) {
+            return reject(`Erro no adicionarIcones(): ${e}`);
+        }
+
+
+    });
+}
+
 // ------------------------ adicionarURLAoBundleCss
 
 const adicionarURLAoBundleCss = async (url) => {
@@ -685,7 +766,7 @@ const minifyHTML = async (arquivo) => {
             drawHtmlMin(arquivo)
 
             var res = htmlMinify(htmlString, {
-                removeAttributeQuotes: true,
+                removeAttributeQuotes: false,
                 caseSensitive: true,
                 collapseBooleanAttributes: true,
                 collapseWhitespace: true,
@@ -736,13 +817,60 @@ const PerformJs = async () => {
 
     }
 
-    if (config.builtIns.fontawesome === "latest") {
+    // cria o constructo dos icones
 
-        let fontawesome = await adicionarURLAoBundle("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.js");
+    if (config.icons.length > 0) {
 
-        code["BUILT-IN FONTAWESOME 5.11.2"] = fontawesome.codigo;
+        let constructoIcones = `
+        <div class="winnetou">
+        <svg display="none" id="[[winIcons]]">
+        `;
+
+        for (let i = 0; i < config.icons.length; i++) {
+
+            let icones = await adicionarIcones(config.icons[i]);
+            drawAdd("Icones adicionados: " + config.icons[i]);
+
+            constructoIcones += icones;
+
+        }
+
+        constructoIcones += `
+            </svg>
+            </div>
+            <div class="winnetou">
+                <svg id="[[useIcon]]">
+                    <use xlink:href="#{{id}}" />
+                </svg>
+            </div>
+        `;
+
+
+
+        // agora deve gerar o constructo dentro da pasta definida pelo usuário para os constructos
+
+        // console.log(constructoIcones)
+
+        constructoIcones = htmlMinify(constructoIcones, {
+            removeAttributeQuotes: false,
+            caseSensitive: true,
+            collapseBooleanAttributes: true,
+            collapseWhitespace: true,
+            removeComments: true,
+            removeEmptyAttributes: true
+        }); // node module que minifica o HTML
+
+        if (!config.constructos.includes("./constructos/icons.html"))
+            config.constructos.push("./constructos/icons.html");
+
+        let iconsSuccess = await fse.outputFile("./constructos/icons.html", constructoIcones, err => {
+            if (err) drawError(`Error create icons constructo: ${err}`)
+        });
+
+        let iconsSuccess2 = iconsSuccess;
 
     }
+
 
     // adiciona assets winnetou
     let construtos = await adicionarConstrutosAoBundle();
