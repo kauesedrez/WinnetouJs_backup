@@ -420,6 +420,36 @@ const adicionarConstrutosAoBundle = async () => {
 
         }
 
+        // 0.29 aqui deve ser tratado o style inline
+
+        let styleReg = new RegExp("<style>(.*?)<\/style>", "gis");
+
+        let m;
+
+        while ((m = styleReg.exec(res)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (m.index === styleReg.lastIndex) {
+                styleReg.lastIndex++;
+            }
+
+            // The result can be accessed through the `m`-variable.
+            m.forEach((match, groupIndex) => {
+
+                // agora se deve retirar o style dos constructos
+                if (groupIndex === 0) {
+                    res = res.replace(match, "");
+                }
+
+                // adiciona o sass
+                if (groupIndex === 1) {
+
+                    codeCss.push(match);
+
+                }
+
+            });
+        }
+
         const arq = `
             var Componentes =\`${res}\`;
             var Div = document.createElement('div');        
@@ -819,7 +849,7 @@ const PerformJs = async () => {
 
     // cria o constructo dos icones
 
-    if (config.icons.length > 0) {
+    if (config.icons && config.icons.length > 0) {
 
         let constructoIcones = `
         <div class="winnetou">
