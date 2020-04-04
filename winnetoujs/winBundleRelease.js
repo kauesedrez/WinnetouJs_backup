@@ -865,14 +865,24 @@ const PerformJs = async () => {
 
         }
 
+        // 0.29.1 Adicionar element class aos ícones
         constructoIcones += `
             </svg>
             </div>
             <div class="winnetou">
-                <svg id="[[useIcon]]">
+                <svg class="{{class}}"id="[[useIcon]]">
                     <use xlink:href="#{{id}}" />
                 </svg>
             </div>
+            <style>
+            svg {
+                width:15px;
+                height: 15px;
+                fill: inherit;
+                margin-right: 10px;
+                margin-left: 10px;
+            }
+            </style>
         `;
 
 
