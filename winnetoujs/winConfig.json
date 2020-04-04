@@ -5,10 +5,7 @@
         "css": "../_public/css"
     },
     "constructos": [
-        "./constructos/hero.html"
-    ],
-    "constructosUrl": [
-        "https://a3menage.s3.amazonaws.com/winnetoujs-repository/hero_appends_s3.htm"
+        "./constructos"
     ],
     "js": [
         "./js_origin"

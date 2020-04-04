@@ -860,8 +860,9 @@ const PerformJs = async () => {
             removeEmptyAttributes: true
         }); // node module que minifica o HTML
 
-        if (!config.constructos.includes("./constructos/icons.html"))
+        if (!config.constructos.includes("./constructos/icons.html") && !config.constructos.includes("./constructos")) {
             config.constructos.push("./constructos/icons.html");
+        }
 
         let iconsSuccess = await fse.outputFile("./constructos/icons.html", constructoIcones, err => {
             if (err) drawError(`Error create icons constructo: ${err}`)

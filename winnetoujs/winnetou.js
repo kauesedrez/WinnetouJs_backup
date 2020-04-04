@@ -64,7 +64,7 @@ class Winnetou {
         } else {
             identifier = options.identifier;
         }
-        identifier = "WinnetouComponent-" + identifier;
+        identifier = "win-" + identifier;
         var $vdom = this.$base[constructo].replace(
             /\[\[\s*?(.*?)\s*?\]\]/g,
             "$1-" + identifier
@@ -77,31 +77,78 @@ class Winnetou {
         // });
 
         for (let item in elements) {
-
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
         };
 
         // this.constructorId++;
         if (options && options.clear) {
-            document.querySelector(output).innerHTML = $vdom;
+
+            // document.querySelector(output).innerHTML = $vdom;
+
+            this.select(output).html($vdom);
+
+            if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>> in clear mode`);
+
         } else if (options && options.reverse) {
-            document.querySelector(output).innerHTML = $vdom + document.querySelector(output).innerHTML;
+
+            // document.querySelector(output).innerHTML = $vdom + document.querySelector(output).innerHTML;
+
+            this.select(output).prepend($vdom)
+
+            if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>> in reverse`);
+
         } else {
+
             try {
-                document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
+
+                // document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
+
+                this.select(output).append($vdom)
+
                 if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>>`);
+
             } catch (e) {
+
                 if (this.debug == "debug")
-                    console.log(
+                    console.error(
                         "winnetou error",
                         `\nAppend error, trying to add <<${constructo}>> in: <<${output}>>\n`,
                         "The output is correct?",
                         "\nUsually the output is an already sewn html element, such as an #id, a .class, or a <tag>.\n\n",
                         e.message);
+
             }
         }
     };
+
+    pull(constructo = "", elements = {}, options = {}) {
+        /**
+         * options:
+         * identifier:String
+         */
+
+        let identifier;
+        if (!options || options.identifier === undefined) {
+            this.constructorId++;
+            identifier = this.constructorId;
+        } else {
+            identifier = options.identifier;
+        }
+        identifier = "win-" + identifier;
+        var $vdom = this.$base[constructo].replace(
+            /\[\[\s*?(.*?)\s*?\]\]/g,
+            "$1-" + identifier
+        );
+
+        for (let item in elements) {
+            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+            $vdom = $vdom.replace(reg, elements[item]);
+        };
+
+        return $vdom;
+
+    }
 
     /**
     * Remove the indicated construct 
@@ -131,6 +178,18 @@ class Winnetou {
             html(texto) {
                 el.forEach(item => {
                     item.innerHTML = texto;
+                })
+                return this;
+            },
+            append(texto) {
+                el.forEach(item => {
+                    item.innerHTML += texto;
+                })
+                return this;
+            },
+            prepend(texto) {
+                el.forEach(item => {
+                    item.innerHTML = texto + item.innerHTML;
                 })
                 return this;
             },
