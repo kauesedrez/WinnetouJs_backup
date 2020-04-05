@@ -36,7 +36,12 @@ class Winnetou {
         if (window.history && window.history.pushState) {
 
             var $history = this.$history;
+
             window.onpopstate = function (event) {
+
+                console.log("history API", history)
+
+                console.log(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
 
                 // dentro de um evento o this muda de contexto
 
@@ -46,19 +51,25 @@ class Winnetou {
 
                 // deve pegar o history e executar a function e dar pop
 
-                if ($history.length > 0) {
+                if (event.state == null) {
 
-
-
-                    let act = $history[$history.length - 1];
-                    $history.pop();
-                    act();
+                    routes["/"]();
 
                 } else {
-
-                    this.debug === "debug" ? console.error("Winnetou history is empty") : null;
-
+                    routes[event.state]();
                 }
+
+                // if ($history.length > 0) {
+
+                //     let act = $history[$history.length - 1];
+                //     $history.pop();
+                //     act();
+
+                // } else {
+
+                //     this.debug === "debug" ? console.error("Winnetou history is empty") : null;
+
+                // }
 
                 // render();
 
@@ -74,8 +85,10 @@ class Winnetou {
 
     };
 
+
+
     /**
-     * Allows WinnetouJs to navigate between screens on the app.
+     * Allows WinnetouJs to navigate between pages on the app. Needs a valid const routes already set.
      * @param action (anonymous function) a function to be called when user use back button on a pc ou mobile phone. Needs to be an anonymous function ()=>{} whithou params. 
      * @tutorial W.navigation(() => {
         W.create('useIcon', '#app', { id: "icons_material_menu" }, { clear: true })
@@ -83,21 +96,17 @@ class Winnetou {
       * @tutorial W.navigation(render); 
       * when render is a previously function without params.
      */
-    navigation(action) {
+    navigation(url) {
 
         if (window.history && window.history.pushState) {
 
-            if (typeof action !== 'function') {
-                throw new Error("WinnetouJs Navigation Error, action param needs to be a function");
+            try {
+                history.pushState(url, "", url)
+            } catch (e) {
+                history.pushState(url, null)
             }
 
-            this.$history.push(action);
-
-            console.log("history no push", this.$history)
-
-            window.history.pushState('forward', null);
-
-            this.debug === "debug" ? console.log("History added successful") : null;
+            routes[url]();
 
         } else {
 
