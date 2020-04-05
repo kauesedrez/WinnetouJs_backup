@@ -10,6 +10,7 @@ class Winnetou {
         this.version = "0.10.1";
         this.constructorId = 0;
         this.$base = [];
+        this.$history = [];
         if (this.debug == "debug") {
             console.log("\nWinnetou LOG Constructos --- \n")
         }
@@ -30,13 +31,87 @@ class Winnetou {
 
         Componentes = null; // garbage collecthis.debug == "debug" 
 
+        // 0.30 - popstate nativo
+
+        if (window.history && window.history.pushState) {
+
+            var $history = this.$history;
+            window.onpopstate = function (event) {
+
+                // dentro de um evento o this muda de contexto
+
+                event.preventDefault();
+
+                console.log("Teste de history", $history)
+
+                // deve pegar o history e executar a function e dar pop
+
+                if ($history.length > 0) {
+
+
+
+                    let act = $history[$history.length - 1];
+                    $history.pop();
+                    act();
+
+                } else {
+
+                    this.debug === "debug" ? console.error("Winnetou history is empty") : null;
+
+                }
+
+                // render();
+
+
+            }
+
+
+        } else {
+
+            this.debug === "debug" ? console.log("History Api not allowed in this browser.") : null;
+
+        }
+
     };
 
     /**
-     * Adds the indicated construct to the defined element.
+     * Allows WinnetouJs to navigate between screens on the app.
+     * @param action (anonymous function) a function to be called when user use back button on a pc ou mobile phone. Needs to be an anonymous function ()=>{} whithou params. 
+     * @tutorial W.navigation(() => {
+        W.create('useIcon', '#app', { id: "icons_material_menu" }, { clear: true })
+     });
+      * @tutorial W.navigation(render); 
+      * when render is a previously function without params.
+     */
+    navigation(action) {
+
+        if (window.history && window.history.pushState) {
+
+            if (typeof action !== 'function') {
+                throw new Error("WinnetouJs Navigation Error, action param needs to be a function");
+            }
+
+            this.$history.push(action);
+
+            console.log("history no push", this.$history)
+
+            window.history.pushState('forward', null);
+
+            this.debug === "debug" ? console.log("History added successful") : null;
+
+        } else {
+
+            this.debug === "debug" ? console.log("History Api not allowed in this browser.") : null;
+
+        }
+
+    }
+
+    /**
+     * Adds the indicated constructo to the defined element.
      * @param constructo A component defined in the html of the constructs previously set by winConfig.json
      * @param output  An html component in the project's index that makes the call to the winnetou bundle. It can be a tag, a #id or a .class.
-     * @param elements Substitutions within the construct defined by {{id}}
+     * @param elements Substitutions within the constructo defined by {{id}}
      * @param options Options that control insertion behavior. Accepted options are: identifier, clear and reverse.
      */
     create(constructo = "", output = "", elements = {}, options = {}) {
@@ -122,6 +197,13 @@ class Winnetou {
         }
     };
 
+
+    /**
+     * Returns the html string from constructo to be included inline in app. It don't have a output param once ir return a value.
+     * @param constructo A component defined in the html of the constructs previously set by winConfig.json    
+     * @param elements Substitutions within the constructo defined by {{id}}
+     * @param options Options that control insertion behavior. Accepted options are: identifier.
+     */
     pull(constructo = "", elements = {}, options = {}) {
         /**
          * options:
@@ -151,7 +233,7 @@ class Winnetou {
     }
 
     /**
-    * Remove the indicated construct 
+    * Remove the indicated constructo 
     * @param constructo A component defined in the html of the constructs previously set by winConfig.json
     */
     destroy(constructo = "") {
