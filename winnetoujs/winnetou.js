@@ -12,51 +12,52 @@ class Winnetou {
         this.$base = [];
         this.$history = [];
         if (this.debug == "debug") {
-            console.log("\nWinnetou LOG Constructos --- \n")
+            console.log("\nWinnetou LOG Constructos --- \n");
         }
-        Array.from(Componentes).forEach(componente => {
-            var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
+        Array.from(Componentes).forEach((componente) => {
+            var id = componente.innerHTML.match(
+                /\[\[\s?(.*?)\s?\]\]/
+            )[1];
             // limpa o tbody
             // isso ainda é necessário? testar.
-            var tbodyClean = componente
-                .innerHTML
+            var tbodyClean = componente.innerHTML
                 .replace(/\<tbody\>/g, "")
                 .replace(/\<\/tbody\>/g, "");
             this.$base[id] = tbodyClean;
             if (this.debug == "debug") {
-                console.log("id: " + id)
+                console.log("id: " + id);
                 console.log("constructo: " + tbodyClean + "\n");
             }
-        })
+        });
 
-        Componentes = null; // garbage collecthis.debug == "debug" 
+        Componentes = null; // garbage collecthis.debug == "debug"
 
         // 0.30 - popstate nativo
 
         if (window.history && window.history.pushState) {
-
             var $history = this.$history;
 
             window.onpopstate = function (event) {
+                console.log("history API", history);
 
-                console.log("history API", history)
-
-                console.log(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+                console.log(
+                    `location: ${
+                        document.location
+                    }, state: ${JSON.stringify(event.state)}`
+                );
 
                 // dentro de um evento o this muda de contexto
 
                 event.preventDefault();
 
-                console.log("Teste de history", $history)
+                console.log("Teste de history", $history);
 
                 // deve pegar o history e executar a function e dar pop
 
                 if (event.state == null) {
-
-                    routes["/"]();
-
+                    WINNETOU_ROUTES["/"]();
                 } else {
-                    routes[event.state]();
+                    WINNETOU_ROUTES[event.state]();
                 }
 
                 // if ($history.length > 0) {
@@ -72,20 +73,15 @@ class Winnetou {
                 // }
 
                 // render();
-
-
-            }
-
-
+            };
         } else {
-
-            this.debug === "debug" ? console.log("History Api not allowed in this browser.") : null;
-
+            this.debug === "debug"
+                ? console.log(
+                      "History Api not allowed in this browser."
+                  )
+                : null;
         }
-
-    };
-
-
+    }
 
     /**
      * Allows WinnetouJs to navigate between pages on the app. Needs a valid const routes already set.
@@ -97,23 +93,29 @@ class Winnetou {
       * when render is a previously function without params.
      */
     navigation(url) {
-
         if (window.history && window.history.pushState) {
-
             try {
-                history.pushState(url, "", url)
+                history.pushState(url, "", url);
             } catch (e) {
-                history.pushState(url, null)
+                history.pushState(url, null);
             }
 
-            routes[url]();
-
+            try {
+                WINNETOU_ROUTES[url]();
+            } catch (e) {
+                this.debug === "debug"
+                    ? console.error(
+                          "WinnetouJs Error: the WINNETOU_ROUTES const needs to be declared and valid object of named functions. See WinnetouJs docs for more information."
+                      )
+                    : null;
+            }
         } else {
-
-            this.debug === "debug" ? console.log("History Api not allowed in this browser.") : null;
-
+            this.debug === "debug"
+                ? console.log(
+                      "History Api not allowed in this browser."
+                  )
+                : null;
         }
-
     }
 
     /**
@@ -123,7 +125,12 @@ class Winnetou {
      * @param elements Substitutions within the constructo defined by {{id}}
      * @param options Options that control insertion behavior. Accepted options are: identifier, clear and reverse.
      */
-    create(constructo = "", output = "", elements = {}, options = {}) {
+    create(
+        constructo = "",
+        output = "",
+        elements = {},
+        options = {}
+    ) {
         /*
           opções aceitas na versão 1.0
           ----------------------------------------
@@ -163,53 +170,53 @@ class Winnetou {
         for (let item in elements) {
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
-        };
+        }
 
         // this.constructorId++;
         if (options && options.clear) {
-
             // document.querySelector(output).innerHTML = $vdom;
 
             this.select(output).html($vdom);
 
-            if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>> in clear mode`);
-
+            if (this.debug == "debug")
+                console.log(
+                    `The element <<${constructo}>> was sewn up successfully in <<${output}>> in clear mode`
+                );
         } else if (options && options.reverse) {
-
             // document.querySelector(output).innerHTML = $vdom + document.querySelector(output).innerHTML;
 
-            this.select(output).prepend($vdom)
+            this.select(output).prepend($vdom);
 
-            if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>> in reverse`);
-
+            if (this.debug == "debug")
+                console.log(
+                    `The element <<${constructo}>> was sewn up successfully in <<${output}>> in reverse`
+                );
         } else {
-
             try {
-
                 // document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
 
-                this.select(output).append($vdom)
+                this.select(output).append($vdom);
 
-                if (this.debug == "debug") console.log(`The element <<${constructo}>> was sewn up successfully in <<${output}>>`);
-
+                if (this.debug == "debug")
+                    console.log(
+                        `The element <<${constructo}>> was sewn up successfully in <<${output}>>`
+                    );
             } catch (e) {
-
                 if (this.debug == "debug")
                     console.error(
                         "winnetou error",
                         `\nAppend error, trying to add <<${constructo}>> in: <<${output}>>\n`,
                         "The output is correct?",
                         "\nUsually the output is an already sewn html element, such as an #id, a .class, or a <tag>.\n\n",
-                        e.message);
-
+                        e.message
+                    );
             }
         }
-    };
-
+    }
 
     /**
      * Returns the html string from constructo to be included inline in app. It don't have a output param once ir return a value.
-     * @param constructo A component defined in the html of the constructs previously set by winConfig.json    
+     * @param constructo A component defined in the html of the constructs previously set by winConfig.json
      * @param elements Substitutions within the constructo defined by {{id}}
      * @param options Options that control insertion behavior. Accepted options are: identifier.
      */
@@ -235,86 +242,103 @@ class Winnetou {
         for (let item in elements) {
             let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
             $vdom = $vdom.replace(reg, elements[item]);
-        };
+        }
 
         return $vdom;
-
     }
 
     /**
-    * Remove the indicated constructo 
-    * @param constructo A component defined in the html of the constructs previously set by winConfig.json
-    */
+     * Remove the indicated constructo
+     * @param constructo A component defined in the html of the constructs previously set by winConfig.json
+     */
     destroy(constructo = "") {
         let el = document.querySelector(constructo);
         el.remove();
-
-    };
+    }
 
     /**
-    * Select the indicated element
-    * @param selector html element. A tag, id ou class.
-    */
+     * Select the indicated element
+     * @param selector html element. A tag, id ou class.
+     */
     select(selector = "") {
-
         var el;
 
         const obj = {
             getEl(selector) {
-                if (el)
-                    return el
-                else
-                    return document.querySelectorAll(selector)
+                if (el) return el;
+                else return document.querySelectorAll(selector);
             },
             html(texto) {
-                el.forEach(item => {
+                el.forEach((item) => {
                     item.innerHTML = texto;
-                })
+                });
                 return this;
             },
             append(texto) {
-                el.forEach(item => {
+                el.forEach((item) => {
                     item.innerHTML += texto;
-                })
+                });
                 return this;
             },
             prepend(texto) {
-                el.forEach(item => {
+                el.forEach((item) => {
                     item.innerHTML = texto + item.innerHTML;
-                })
+                });
                 return this;
             },
             css(property, value) {
-
-                el.forEach(item => {
+                el.forEach((item) => {
                     item.style[property] = value;
-                })
+                });
+                return this;
+            },
+            toggleClass(classe) {
+                el.forEach((item) => {
+                    item.classList.toggle(classe);
+                });
                 return this;
             },
             fadeOut() {
-                el.forEach(item => {
-
-                    item.classList.remove('show_asz__');
-                    item.classList.add('hide_asz__');
+                el.forEach((item) => {
+                    item.classList.remove("show_asz__");
+                    item.classList.add("hide_asz__");
 
                     setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 400)
-                })
+                        item.style.display = "none";
+                    }, 400);
+                });
             },
             fadeIn() {
-                el.forEach(item => {
-
-                    item.style.display = '';
-                    item.classList.remove('hide_asz__');
-
-                })
+                el.forEach((item) => {
+                    item.style.display = "";
+                    item.classList.remove("hide_asz__");
+                });
             },
         };
 
         el = obj.getEl(selector);
 
         return obj;
-    };
+    }
 
-};
+    //0.31 - Delegate
+    on(eventName, elementSelector, handler) {
+        document.addEventListener(
+            eventName,
+            function (e) {
+                // loop parent nodes from the target to the delegation node
+                for (
+                    var target = e.target;
+                    target && target != this;
+                    target = target.parentNode
+                ) {
+                    if (target.matches(elementSelector)) {
+                        handler.call(target, e);
+                        break;
+                    }
+                }
+            },
+            false
+        );
+    }
+}
