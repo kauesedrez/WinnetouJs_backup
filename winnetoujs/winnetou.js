@@ -52,27 +52,11 @@ class Winnetou {
 
                 console.log("Teste de history", $history);
 
-                // deve pegar o history e executar a function e dar pop
-
                 if (event.state == null) {
                     WINNETOU_ROUTES["/"]();
                 } else {
                     WINNETOU_ROUTES[event.state]();
                 }
-
-                // if ($history.length > 0) {
-
-                //     let act = $history[$history.length - 1];
-                //     $history.pop();
-                //     act();
-
-                // } else {
-
-                //     this.debug === "debug" ? console.error("Winnetou history is empty") : null;
-
-                // }
-
-                // render();
             };
         } else {
             this.debug === "debug"
@@ -148,44 +132,67 @@ class Winnetou {
               reverse:Boolean
           }
           */
-        let identifier;
-        if (!options || options.identifier === undefined) {
-            this.constructorId++;
-            identifier = this.constructorId;
-        } else {
-            identifier = options.identifier;
+
+        // -----------------------------------------------------------------
+        var $vdom = "";
+        var $this = this;
+        function imprime(opt = "") {
+            function geraIdentifier() {
+                let identifier;
+                if (!options || options.identifier === undefined) {
+                    $this.constructorId++;
+                    identifier = $this.constructorId;
+                } else {
+                    if (!output.includes("#")) {
+                        if ($this.debug === "debug")
+                            console.warn(
+                                "WinnetouJs Warning: When identifier is set the output must be a unique #id.",
+                                `Constructo: ${constructo} | Identifier: ${options.identifier}`
+                            );
+                    }
+                    identifier = options.identifier;
+                }
+                identifier = "win-" + identifier;
+                $vdom = $this.$base[constructo].replace(
+                    /\[\[\s*?(.*?)\s*?\]\]/g,
+                    "$1-" + identifier
+                );
+
+                for (let item in elements) {
+                    let reg = new RegExp(
+                        "{{\\s*?(" + item + ")\\s*?}}"
+                    );
+                    $vdom = $vdom.replace(reg, elements[item]);
+                }
+            }
+
+            let el = document.querySelectorAll(output);
+            el.forEach((item) => {
+                geraIdentifier();
+                if (opt === "clear") item.innerHTML = $vdom;
+                if (opt === "reverse")
+                    item.innerHTML = $vdom + item.innerHTML;
+                if (opt === "") item.innerHTML += $vdom;
+            });
         }
-        identifier = "win-" + identifier;
-        var $vdom = this.$base[constructo].replace(
-            /\[\[\s*?(.*?)\s*?\]\]/g,
-            "$1-" + identifier
-        );
 
-        // $.each(elements, function(item) {
-        //     // reg = new RegExp('{{(' + item + ')}}|{{( ' + item + ' )}}');
-        //     let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
-        //     $vdom = $vdom.replace(reg, elements[item]);
-        // });
+        // -----------------------------------------------------------------
 
-        for (let item in elements) {
-            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
-            $vdom = $vdom.replace(reg, elements[item]);
-        }
-
-        // this.constructorId++;
         if (options && options.clear) {
             // document.querySelector(output).innerHTML = $vdom;
 
-            this.select(output).html($vdom);
+            //this.select(output).html($vdom);
+
+            imprime("clear");
 
             if (this.debug == "debug")
                 console.log(
                     `The element <<${constructo}>> was sewn up successfully in <<${output}>> in clear mode`
                 );
         } else if (options && options.reverse) {
-            // document.querySelector(output).innerHTML = $vdom + document.querySelector(output).innerHTML;
+            //this.select(output).prepend($vdom);
 
-            this.select(output).prepend($vdom);
+            imprime("reverse");
 
             if (this.debug == "debug")
                 console.log(
@@ -193,9 +200,9 @@ class Winnetou {
                 );
         } else {
             try {
-                // document.querySelector(output).innerHTML = document.querySelector(output).innerHTML + $vdom;
+                // this.select(output).append($vdom);
 
-                this.select(output).append($vdom);
+                imprime();
 
                 if (this.debug == "debug")
                     console.log(
