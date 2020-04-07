@@ -1,24 +1,16 @@
 {
     "livereload": true,
     "outputs": {
-        "js": "../_public/js",
-        "css": "../_public/css"
+        "js": "../js",
+        "css": "../css"
     },
-    "constructos": [
-        "./constructos"
-    ],
-    "js": [
-        "./js_origin"
-    ],
-    "sass": [
-        "./sass_origin"
-    ],
+    "constructos": ["./constructos"],
+    "js": ["./js_origin"],
+    "map": true,
+    "sass": ["./sass_origin"],
     "builtIns": {
         "bulma": "latest",
         "winnetouBulmaJs": "latest"
     },
-    "icons": [
-        "./icons/material",
-        "./icons/social"
-    ]
+    "icons": ["./icons/material", "./icons/social"]
 }
