@@ -909,6 +909,12 @@ const PerformJs = async () => {
     let construtos = await adicionarConstrutosAoBundle();
     code["construtos.js"] = construtos;
 
+    if (config.defaultLang) {
+        code["traducoes.js"] = `
+            var defaultLang = "${config.defaultLang}";
+        `;
+    }
+
     let winnetou = await adicionarWinnetouAoBundle();
     code["winnetou.js"] = winnetou;
 
@@ -1226,7 +1232,7 @@ const PerformAll = () => {
                                 setTimeout(() => {
                                     performAllControl = true;
                                     drawFinal();
-                                }, 3000);
+                                }, 1000);
                             }
                         );
                     });

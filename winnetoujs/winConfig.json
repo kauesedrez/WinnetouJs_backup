@@ -12,5 +12,6 @@
         "bulma": "latest",
         "winnetouBulmaJs": "latest"
     },
-    "icons": ["./icons/material", "./icons/social"]
+    "icons": ["./icons/material", "./icons/social"],
+    "defaultLang": "en-US"
 }

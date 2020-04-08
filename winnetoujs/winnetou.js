@@ -1,11 +1,12 @@
 /*
     WinnetouJs Framework
     Use freely keeping this header 
-    Author:  Winetu Kaue Sedrez Bilhalva
+    Author:  Winnetou Kaue Sedrez Bilhalva
     Contact: kaue.sedrez@gmail.com
 */
 class Winnetou {
     constructor(debug = "", next) {
+        this.string = [];
         this.debug = debug;
         this.version = "0.10.1";
         this.constructorId = 0;
@@ -14,6 +15,7 @@ class Winnetou {
         if (this.debug == "debug") {
             console.log("\nWinnetou LOG Constructos --- \n");
         }
+
         Array.from(Componentes).forEach((componente) => {
             var id = componente.innerHTML.match(
                 /\[\[\s?(.*?)\s?\]\]/
@@ -89,9 +91,21 @@ class Winnetou {
             } catch (e) {
                 this.debug === "debug"
                     ? console.error(
-                          "WinnetouJs Error: the WINNETOU_ROUTES const needs to be declared and valid object of named functions. See WinnetouJs docs for more information."
+                          "WinnetouJs Error: the provided URL was not found or the WINNETOU_ROUTES const not have been declared as a valid object of named functions. See WinnetouJs docs for more information.",
+                          url
                       )
                     : null;
+                try {
+                    WINNETOU_ROUTES["/404"]();
+                } catch (e) {
+                    if (this.debug === "debug")
+                        console.warn(
+                            "Winnetou Warning: the /404 route was not defined in the WINNETOU_ROUTES."
+                        );
+                    document.write(
+                        "<h1>WinnetouJs</h1><h2>The indie javascript framework</h2>"
+                    );
+                }
             }
         } else {
             this.debug === "debug"
@@ -347,5 +361,47 @@ class Winnetou {
             },
             false
         );
+    }
+
+    // 0.35 - Languages support
+    lang(next) {
+        // qual a linguagem padrão?
+        // como saber qual linguagem é a padrão
+        // vai usar o indexedDB
+        // uma variavel global para a linguagem padrao
+        // e salvar a linguagem atual em indexed
+        // ao carregar o app procura pelo localstorage, se estiver em branco
+        // usa a da variavel global
+
+        let localLang = window.localStorage.getItem("lang");
+        if (localLang) defaultLang = localLang;
+
+        var $this = this;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let trad = this.responseXML;
+                let el = trad.getElementsByTagName("winnetou");
+                let frases = el[0].childNodes;
+                frases.forEach((item) => {
+                    console.log(item.nodeName, item.textContent);
+                    $this.string[item.nodeName] = item.textContent;
+                });
+                //console.log("frases", frases);
+                next();
+            }
+        };
+        xhttp.open(
+            "GET",
+            `/winnetoujs/translations/${defaultLang}.xml`,
+            true
+        );
+        xhttp.send();
+    }
+
+    // 0.35
+    changeLang(lang) {
+        window.localStorage.setItem("lang", lang);
+        location.reload();
     }
 }
