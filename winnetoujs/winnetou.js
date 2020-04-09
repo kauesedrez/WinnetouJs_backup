@@ -5,6 +5,8 @@
     Contact: kaue.sedrez@gmail.com
 */
 class Winnetou {
+    //
+
     constructor(debug = "", next) {
         this.string = [];
         this.debug = debug;
@@ -16,10 +18,10 @@ class Winnetou {
             console.log("\nWinnetou LOG Constructos --- \n");
         }
 
+        var $debug = this.debug;
+
         Array.from(Componentes).forEach((componente) => {
-            var id = componente.innerHTML.match(
-                /\[\[\s?(.*?)\s?\]\]/
-            )[1];
+            var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
             // limpa o tbody
             // isso ainda é necessário? testar.
             var tbodyClean = componente.innerHTML
@@ -43,9 +45,9 @@ class Winnetou {
                 console.log("history API", history);
 
                 console.log(
-                    `location: ${
-                        document.location
-                    }, state: ${JSON.stringify(event.state)}`
+                    `location: ${document.location}, state: ${JSON.stringify(
+                        event.state
+                    )}`
                 );
 
                 // dentro de um evento o this muda de contexto
@@ -62,9 +64,7 @@ class Winnetou {
             };
         } else {
             this.debug === "debug"
-                ? console.log(
-                      "History Api not allowed in this browser."
-                  )
+                ? console.log("History Api not allowed in this browser.")
                 : null;
         }
     }
@@ -109,9 +109,7 @@ class Winnetou {
             }
         } else {
             this.debug === "debug"
-                ? console.log(
-                      "History Api not allowed in this browser."
-                  )
+                ? console.log("History Api not allowed in this browser.")
                 : null;
         }
     }
@@ -123,12 +121,7 @@ class Winnetou {
      * @param elements Substitutions within the constructo defined by {{id}}
      * @param options Options that control insertion behavior. Accepted options are: identifier, clear and reverse.
      */
-    create(
-        constructo = "",
-        output = "",
-        elements = {},
-        options = {}
-    ) {
+    create(constructo = "", output = "", elements = {}, options = {}) {
         /*
           opções aceitas na versão 1.0
           ----------------------------------------
@@ -173,9 +166,7 @@ class Winnetou {
                 );
 
                 for (let item in elements) {
-                    let reg = new RegExp(
-                        "{{\\s*?(" + item + ")\\s*?}}"
-                    );
+                    let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
                     $vdom = $vdom.replace(reg, elements[item]);
                 }
             }
@@ -184,8 +175,7 @@ class Winnetou {
             el.forEach((item) => {
                 geraIdentifier();
                 if (opt === "clear") item.innerHTML = $vdom;
-                if (opt === "reverse")
-                    item.innerHTML = $vdom + item.innerHTML;
+                if (opt === "reverse") item.innerHTML = $vdom + item.innerHTML;
                 if (opt === "") item.innerHTML += $vdom;
             });
         }
@@ -343,6 +333,12 @@ class Winnetou {
     }
 
     //0.31 - Delegate
+    /**
+     * Event Handler
+     * @param eventName
+     * @param elementSelector
+     * @param handler
+     */
     on(eventName, elementSelector, handler) {
         document.addEventListener(
             eventName,
@@ -364,15 +360,11 @@ class Winnetou {
     }
 
     // 0.35 - Languages support
+    /**
+     * Activate translations
+     * @param next callback
+     */
     lang(next) {
-        // qual a linguagem padrão?
-        // como saber qual linguagem é a padrão
-        // vai usar o indexedDB
-        // uma variavel global para a linguagem padrao
-        // e salvar a linguagem atual em indexed
-        // ao carregar o app procura pelo localstorage, se estiver em branco
-        // usa a da variavel global
-
         let localLang = window.localStorage.getItem("lang");
         if (localLang) defaultLang = localLang;
 
@@ -391,17 +383,169 @@ class Winnetou {
                 next();
             }
         };
-        xhttp.open(
-            "GET",
-            `/winnetoujs/translations/${defaultLang}.xml`,
-            true
-        );
+        xhttp.open("GET", `/winnetoujs/translations/${defaultLang}.xml`, true);
         xhttp.send();
     }
 
     // 0.35
+    /**
+     * Change language
+     * @param lang string language
+     */
     changeLang(lang) {
         window.localStorage.setItem("lang", lang);
         location.reload();
+    }
+
+    // 0.36
+
+    /**
+     * Ajax
+     * @param options json object (url, method, data, cacheThenServer, cacheOnly, recache)
+     * @param callback called function when completes
+     */
+    ajax(options, callback) {
+        var $debug = this.debug;
+
+        // -----------------------------
+        // caches
+        // -----------------------------
+
+        if (options.cacheOnly === true) {
+            try {
+                let localRes = window.localStorage.getItem(options.url);
+
+                try {
+                    localRes = JSON.parse(localRes);
+                } catch (e) {}
+
+                if (localRes) {
+                    callback(false, localRes);
+                    if (options.recache) {
+                        requestAjax((e, s) => true);
+                    }
+                } else {
+                    requestAjax((e, s) => callback(e, s));
+                }
+            } catch (e) {
+                callback("Winnetou Ajax Cache error: " + e.message, false);
+                if ($debug === "debug")
+                    console.error("Winnetou Ajax Cache error: " + e.message);
+            }
+        } else if (options.cacheThenServer) {
+            //
+            try {
+                let localRes = window.localStorage.getItem(options.url);
+
+                try {
+                    localRes = JSON.parse(localRes);
+                } catch (e) {}
+
+                if (localRes) {
+                    callback(false, localRes);
+                    requestAjax((e, s) => callback(e, s));
+                } else {
+                    requestAjax((e, s) => callback(e, s));
+                }
+            } catch (e) {
+                callback("Winnetou Ajax Cache error: " + e.message, false);
+                if ($debug === "debug")
+                    console.error("Winnetou Ajax Cache error: " + e.message);
+            }
+        } else {
+            requestAjax((e, s) => callback(e, s));
+        }
+
+        function requestAjax(callback2) {
+            var httpRequest;
+
+            if (window.XMLHttpRequest) {
+                // Mozilla, Safari, ...
+                httpRequest = new XMLHttpRequest();
+            } else if (window.ActiveXObject) {
+                // IE
+                try {
+                    httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {}
+                }
+            }
+
+            if (!httpRequest) {
+                if ($debug === "debug")
+                    console.error(
+                        "Winnetou Error: Giving up :( Cannot create an XMLHTTP instance"
+                    );
+                callback2("The browser doesn't support ajax", false);
+                return false;
+            }
+            //
+            httpRequest.onreadystatechange = alertContents;
+            //
+            if (options.method) {
+                httpRequest.open(options.method, options.url);
+            } else {
+                httpRequest.open("GET", options.url);
+            }
+            //
+            httpRequest.setRequestHeader("Content-Type", "application/json");
+            //
+            if ($debug === "debug") console.log("Data sent: ", options.data);
+            //
+            if (options.method == "GET") {
+                httpRequest.send();
+            } else {
+                httpRequest.send(JSON.stringify(options.data));
+            }
+            //
+            function alertContents() {
+                if (httpRequest.readyState === 4) {
+                    if (httpRequest.status === 200) {
+                        //
+                        if (options.cacheOnly || options.cacheThenServer) {
+                            if (httpRequest.responseText) {
+                                //
+                                window.localStorage.setItem(
+                                    options.url,
+                                    httpRequest.responseText
+                                );
+                                //
+                            } else {
+                                if ($debug === "debug") {
+                                    console.error(
+                                        "Winnetou Ajax: Caches dont support XML responses."
+                                    );
+                                }
+                            }
+                        }
+
+                        //
+                        switch (options.responseType) {
+                            //
+                            case "json":
+                                callback2(false, JSON.parse(httpRequest.responseText));
+                                break;
+                            //
+                            case "text":
+                                callback2(false, httpRequest.responseText);
+                                break;
+                            //
+                            case "xml":
+                                callback2(false, httpRequest.responseXML);
+                                break;
+                            //
+                            default:
+                                callback2(false, JSON.parse(httpRequest.responseText));
+                                break;
+                        }
+                        //
+                    } else {
+                        callback2("Erro: " + httpRequest.status, false);
+                    }
+                }
+            }
+        }
     }
 }
