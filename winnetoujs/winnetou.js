@@ -28,13 +28,13 @@ class Winnetou {
                 .replace(/\<tbody\>/g, "")
                 .replace(/\<\/tbody\>/g, "");
             this.$base[id] = tbodyClean;
-            if (this.debug == "debug") {
+            if ($debug == "debug") {
                 console.log("id: " + id);
                 console.log("constructo: " + tbodyClean + "\n");
             }
         });
 
-        Componentes = null; // garbage collecthis.debug == "debug"
+        Componentes = null; // garbage collec$debug == "debug"
 
         // 0.30 - popstate nativo
 
@@ -42,19 +42,17 @@ class Winnetou {
             var $history = this.$history;
 
             window.onpopstate = function (event) {
-                console.log("history API", history);
-
-                console.log(
-                    `location: ${document.location}, state: ${JSON.stringify(
-                        event.state
-                    )}`
-                );
+                if ($debug == "debug") {
+                    console.log(
+                        `location: ${document.location}, state: ${JSON.stringify(
+                            event.state
+                        )}`
+                    );
+                }
 
                 // dentro de um evento o this muda de contexto
 
                 event.preventDefault();
-
-                console.log("Teste de history", $history);
 
                 if (event.state == null) {
                     WINNETOU_ROUTES["/"]();
@@ -63,7 +61,7 @@ class Winnetou {
                 }
             };
         } else {
-            this.debug === "debug"
+            $debug === "debug"
                 ? console.log("History Api not allowed in this browser.")
                 : null;
         }
@@ -72,13 +70,11 @@ class Winnetou {
     /**
      * Allows WinnetouJs to navigate between pages on the app. Needs a valid const routes already set.
      * @param action (anonymous function) a function to be called when user use back button on a pc ou mobile phone. Needs to be an anonymous function ()=>{} whithou params. 
-     * @tutorial W.navigation(() => {
-        W.create('useIcon', '#app', { id: "icons_material_menu" }, { clear: true })
-     });
-      * @tutorial W.navigation(render); 
-      * when render is a previously function without params.
+     * @tutorial W.navigate('/perfil/public');
+     
      */
-    navigation(url) {
+    navigate(url) {
+        var $this = this;
         if (window.history && window.history.pushState) {
             try {
                 history.pushState(url, "", url);
@@ -89,16 +85,17 @@ class Winnetou {
             try {
                 WINNETOU_ROUTES[url]();
             } catch (e) {
-                this.debug === "debug"
+                $this.debug === "debug"
                     ? console.error(
                           "WinnetouJs Error: the provided URL was not found or the WINNETOU_ROUTES const not have been declared as a valid object of named functions. See WinnetouJs docs for more information.",
-                          url
+                          url,
+                          e
                       )
                     : null;
                 try {
                     WINNETOU_ROUTES["/404"]();
                 } catch (e) {
-                    if (this.debug === "debug")
+                    if ($this.debug === "debug")
                         console.warn(
                             "Winnetou Warning: the /404 route was not defined in the WINNETOU_ROUTES."
                         );
@@ -108,7 +105,7 @@ class Winnetou {
                 }
             }
         } else {
-            this.debug === "debug"
+            $this.debug === "debug"
                 ? console.log("History Api not allowed in this browser.")
                 : null;
         }
@@ -166,9 +163,16 @@ class Winnetou {
                 );
 
                 for (let item in elements) {
+                    //--------------
                     let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+
                     $vdom = $vdom.replace(reg, elements[item]);
+                    //-------------
                 }
+
+                // limpa os elements que não foram setados
+                let reg2 = new RegExp("{{\\s*?(.*?)\\s*?}}", "g");
+                $vdom = $vdom.replace(reg2, "");
             }
 
             let el = document.querySelectorAll(output);
@@ -277,7 +281,17 @@ class Winnetou {
         const obj = {
             getEl(selector) {
                 if (el) return el;
-                else return document.querySelectorAll(selector);
+                else {
+                    if (selector.includes("#")) {
+                        selector = selector.replace("#", "");
+                        return [document.getElementById(selector)];
+                    } else if (selector.includes(".")) {
+                        selector = selector.replace(".", "");
+                        return Array.from(document.getElementsByClassName(selector));
+                    } else {
+                        return Array.from(document.getElementsByTagName(selector));
+                    }
+                }
             },
             html(texto) {
                 el.forEach((item) => {
@@ -286,12 +300,14 @@ class Winnetou {
                 return this;
             },
             append(texto) {
+                // el.innerHTML = texto + el.innerHTML;
                 el.forEach((item) => {
                     item.innerHTML += texto;
                 });
                 return this;
             },
             prepend(texto) {
+                // el.innerHTML = texto + el.innerHTML;
                 el.forEach((item) => {
                     item.innerHTML = texto + item.innerHTML;
                 });
@@ -299,6 +315,7 @@ class Winnetou {
             },
             css(property, value) {
                 el.forEach((item) => {
+                    if (typeof value == "number") value += "px";
                     item.style[property] = value;
                 });
                 return this;
@@ -309,19 +326,25 @@ class Winnetou {
                 });
                 return this;
             },
-            fadeOut() {
+            addClass(classe) {
                 el.forEach((item) => {
-                    item.classList.remove("show_asz__");
+                    item.classList.add(classe);
+                });
+                return this;
+            },
+            removeClass(classe) {
+                el.forEach((item) => {
+                    item.classList.remove(classe);
+                });
+                return this;
+            },
+            hide() {
+                el.forEach((item) => {
                     item.classList.add("hide_asz__");
-
-                    setTimeout(() => {
-                        item.style.display = "none";
-                    }, 400);
                 });
             },
-            fadeIn() {
+            show() {
                 el.forEach((item) => {
-                    item.style.display = "";
                     item.classList.remove("hide_asz__");
                 });
             },
@@ -365,6 +388,7 @@ class Winnetou {
      * @param next callback
      */
     lang(next) {
+        if (!defaultLang) var defaultLang = "default";
         let localLang = window.localStorage.getItem("lang");
         if (localLang) defaultLang = localLang;
 
@@ -376,7 +400,6 @@ class Winnetou {
                 let el = trad.getElementsByTagName("winnetou");
                 let frases = el[0].childNodes;
                 frases.forEach((item) => {
-                    console.log(item.nodeName, item.textContent);
                     $this.string[item.nodeName] = item.textContent;
                 });
                 //console.log("frases", frases);
