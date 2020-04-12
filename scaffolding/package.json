@@ -1,0 +1,12 @@
+{
+    "name": "scaffolding_winnetoujs",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "ejs": "^3.0.2",
+        "body-parser": "^1.19.0"
+    }
+}

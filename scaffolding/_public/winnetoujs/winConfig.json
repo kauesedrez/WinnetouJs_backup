@@ -1,0 +1,12 @@
+{
+    "livereload": true,
+    "outputs": {
+        "js": "../js",
+        "css": "../css"
+    },
+    "constructos": ["./constructos", "./slideScreens.html"],
+    "js": ["./js_origin", "./slideScreens.js", "./animate.js"],
+    "css": ["./css_origin", "./animate.css"],
+    "map": true,
+    "sass": ["./sass_origin"]
+}
