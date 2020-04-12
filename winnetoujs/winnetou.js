@@ -353,6 +353,7 @@ class Winnetou {
                 el.forEach((item) => {
                     item.classList.add("winnetou_display_none");
                 });
+                return this;
             },
             show() {
                 el.forEach((item) => {
@@ -360,6 +361,7 @@ class Winnetou {
                         item.style.display = "initial";
                     item.classList.remove("winnetou_display_none");
                 });
+                return this;
             },
         };
 
