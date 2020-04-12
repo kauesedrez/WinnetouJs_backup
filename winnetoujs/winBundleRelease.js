@@ -1070,7 +1070,7 @@ const BundleJs = async (dados) => {
 const BundleCss = async (dados) => {
     //css predefinidos para o funcionamento do winnetoujs
     let stringU = `       
-        .hide_asz__ {
+        .winnetou_display_none {
             display: none !important;
         }                
     `;

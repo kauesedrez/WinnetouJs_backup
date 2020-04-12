@@ -39,8 +39,6 @@ class Winnetou {
         // 0.30 - popstate nativo
 
         if (window.history && window.history.pushState) {
-            var $history = this.$history;
-
             window.onpopstate = function (event) {
                 if ($debug == "debug") {
                     console.log(
@@ -65,6 +63,19 @@ class Winnetou {
                 ? console.log("History Api not allowed in this browser.")
                 : null;
         }
+    }
+
+    popstate(f) {
+        var $this = this;
+        if (window.history && window.history.pushState) {
+            history.replaceState(f, null);
+            history.pushState(f, null);
+        } else {
+            $this.debug === "debug"
+                ? console.log("History Api not allowed in this browser.")
+                : null;
+        }
+        console.log(history);
     }
 
     /**
@@ -340,12 +351,14 @@ class Winnetou {
             },
             hide() {
                 el.forEach((item) => {
-                    item.classList.add("hide_asz__");
+                    item.classList.add("winnetou_display_none");
                 });
             },
             show() {
                 el.forEach((item) => {
-                    item.classList.remove("hide_asz__");
+                    if (getComputedStyle(item).display == "none")
+                        item.style.display = "initial";
+                    item.classList.remove("winnetou_display_none");
                 });
             },
         };
