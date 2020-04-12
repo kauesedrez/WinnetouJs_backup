@@ -63,6 +63,22 @@ class Winnetou {
                 ? console.log("History Api not allowed in this browser.")
                 : null;
         }
+
+        // temas
+
+        var theme = window.localStorage.getItem("theme");
+        if (theme) {
+            theme = JSON.parse(theme);
+            let root = document.documentElement;
+            Object.keys(theme).forEach(function (item) {
+                if ($debug === "debug") console.log(item + " = " + theme[item]);
+
+                root.style.setProperty(item, theme[item]);
+            });
+            if ($debug === "debug") console.log("Altered theme loaded.");
+        } else {
+            if ($debug === "debug") console.log("Default theme loaded.");
+        }
     }
 
     popstate(f) {
@@ -585,5 +601,23 @@ class Winnetou {
                 }
             }
         }
+    }
+
+    // 0.40
+    /**
+     * Change Theme
+     * @param theme object
+     */
+    newTheme(theme) {
+        var $debug = this.debug;
+        let root = document.documentElement;
+
+        Object.keys(theme).forEach(function (item) {
+            if ($debug === "debug") console.log(item + " = " + theme[item]);
+
+            root.style.setProperty(item, theme[item]);
+        });
+
+        window.localStorage.setItem("theme", JSON.stringify(theme));
     }
 }

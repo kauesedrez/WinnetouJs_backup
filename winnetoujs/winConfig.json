@@ -9,10 +9,7 @@
     "css": ["./css_origin", "./animate.css"],
     "map": true,
     "sass": ["./sass_origin"],
-    "builtIns": {
-        "bulma": "latest",
-        "winnetouBulmaJs": "latest"
-    },
+    "builtIns": {},
     "icons": ["./icons"],
     "defaultLang": "en-US"
 }

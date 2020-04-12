@@ -911,13 +911,6 @@ const PerformCss = async () => {
         miniCss.push(bootstrapCss);
     }
 
-    if (config.builtIns.bulma === "latest") {
-        let bulma = await adicionarURLAoBundleCss(
-            "https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-        );
-        miniCss.push(bulma);
-    }
-
     for (let i = 0; i < config.css.length; i++) {
         let nome = config.css[i];
         if (nome.includes(".css")) {
