@@ -1,5 +1,5 @@
 {
-    "livereload": true,
+    "livereload": false,
     "outputs": {
         "js": "../js",
         "css": "../css"
