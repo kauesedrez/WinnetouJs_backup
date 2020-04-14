@@ -1,28 +1,27 @@
 <div class="winnetou">
-    <div class="slideScreen" id="[[slideScreen]]"></div>
+  <div class="slideScreen" id="[[slideScreen]]"></div>
 </div>
 
 <div class="winnetou">
-    <div class="screen" id="[[screen]]"></div>
+  <div class="screen" id="[[screen]]"></div>
 </div>
 
 <style>
-    @use 'sass_modules/vars';
-    #app,
-    body {
-        max-width: 100vw;
-        overflow-x: hidden;
-    }
-    .slideScreen {
-        height: 100vh;
-        background-color: vars.$bg;
-        display: flex;
-    }
-    .screen {
-        width: 100vw;
-        height: 100%;
-        overflow-y: auto;
-    }
+  @use 'sass_modules/vars';
+  #app,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  .slideScreen {
+    height: 100vh;
+    background-color: vars.$bg;
+    display: flex;
+  }
+  .screen {
+    height: 100%;
+    overflow-y: auto;
+  }
 </style>
 
 <!--
