@@ -75,9 +75,9 @@ const drawError = (text) => {
     contadorDeErros++;
     drawLine();
     drawBlankLine();
+    console.log("\x1b[1;37;41m");
     drawText("[ X ] Error");
-    drawBlankLine();
-    drawLine();
+    console.log("\x1b[0m");
     drawBlankLine();
     drawTextBlock(text);
     drawBlankLine();
@@ -385,7 +385,10 @@ const adicionarConstrutosAoBundle = async () => {
                         codeCss.push(result.css);
                     } catch (e) {
                         drawError(
-                            `Winnetou Error: ${e.message} \n\n ${err} \n\n ${match} `
+                            `Winnetou Error: ${e.message} \n\n ${err} \n\n 
+                            \nInline Style:\n
+
+                            ${item[1]} `
                         );
                     }
                 }
@@ -673,6 +676,57 @@ const adicionarSvg = async (path) => {
 
             let cleanFill = arr[2].replace("fill", "data-fill");
 
+            // let cleanFill = arr[2];
+
+            symbol += cleanFill;
+
+            symbol += `</symbol>`;
+
+            // agora tenho um array de paths
+            // tenho que colocar dentro do symbol
+
+            return resolve(symbol);
+        } else {
+            return reject(`Erro ao ler arquivo adicionarIcones() ${path}`);
+        }
+    });
+};
+
+const adicionarSvgColorido = async (path) => {
+    return new Promise((resolve, reject) => {
+        let xmlString = fs.readFileSync(path, "utf8");
+
+        // o que usar no id?
+        // tinha que ser o path + nome do icone
+        // icons_material_github
+        // o path está assim
+        // "./icons/material/menu.svg"
+
+        let regPath = /[a-zA-Z]+/g;
+
+        let id = path.match(regPath);
+
+        id = id.filter((x) => x != "svg");
+
+        id = id.join("_");
+
+        let regVb = new RegExp('viewBox="(.*?)"', "gis");
+
+        let reg = new RegExp("<svg(.*?)>(.*?)</svg>", "is");
+
+        if (xmlString) {
+            // trata o svg
+
+            let viewBox = xmlString.match(regVb);
+
+            let arr = xmlString.match(reg);
+
+            let symbol = `<symbol ${viewBox} id="${id}">`;
+
+            // let cleanFill = arr[2].replace("fill", "data-fill");
+
+            let cleanFill = arr[2];
+
             symbol += cleanFill;
 
             symbol += `</symbol>`;
@@ -695,6 +749,24 @@ const adicionarIcones = async (path) => {
 
             for (let a = 0; a < files.length; a++) {
                 let svgName = await adicionarSvg(path + "/" + files[a]);
+
+                arqs += "\n\t" + svgName;
+            }
+            return resolve(arqs);
+        } catch (e) {
+            return reject(`Erro no adicionarIcones(): ${e}`);
+        }
+    });
+};
+
+const adicionarIconesColoridos = async (path) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let files = fs.readdirSync(path);
+            let arqs = "";
+
+            for (let a = 0; a < files.length; a++) {
+                let svgName = await adicionarSvgColorido(path + "/" + files[a]);
 
                 arqs += "\n\t" + svgName;
             }
@@ -781,17 +853,29 @@ const PerformJs = async () => {
 
     // cria o constructo dos icones
 
-    if (config.icons && config.icons.length > 0) {
+    if (
+        (config.icons && config.icons.length > 0) ||
+        (config.coloredIcons && config.coloredIcons.length > 0)
+    ) {
         let constructoIcones = `
         <div class="winnetou">
         <svg display="none" id="[[winIcons]]">
         `;
+        if (config.icons && config.icons.length > 0) {
+            for (let i = 0; i < config.icons.length; i++) {
+                let icones = await adicionarIcones(config.icons[i]);
+                drawAdd("Icones adicionados: " + config.icons[i]);
 
-        for (let i = 0; i < config.icons.length; i++) {
-            let icones = await adicionarIcones(config.icons[i]);
-            drawAdd("Icones adicionados: " + config.icons[i]);
+                constructoIcones += icones;
+            }
+        }
+        if (config.coloredIcons && config.coloredIcons.length > 0) {
+            for (let i = 0; i < config.coloredIcons.length; i++) {
+                let icones = await adicionarIconesColoridos(config.coloredIcons[i]);
+                drawAdd("Icones adicionados: " + config.coloredIcons[i]);
 
-            constructoIcones += icones;
+                constructoIcones += icones;
+            }
         }
 
         // 0.29.1 Adicionar element class aos ícones

@@ -50,7 +50,11 @@ var tween = function (start, end, duration, easing) {
     var tweenLoop = function (time) {
         var t = !time ? 0 : time - startTime;
         var factor = easing(null, t, 0, 1, duration);
-        w.scrollLeft = start + delta * factor;
+        try {
+            w.scrollLeft = start + delta * factor;
+        } catch (e) {
+            console.log("err" + e);
+        }
         if (t < duration && w.scrollLeft != end) requestAnimationFrame(tweenLoop);
     };
     tweenLoop();

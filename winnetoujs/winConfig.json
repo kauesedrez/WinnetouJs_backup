@@ -9,7 +9,6 @@
     "css": ["./css_origin", "./animate.css"],
     "map": true,
     "sass": ["./sass_origin"],
-    "builtIns": {},
-    "icons": ["./icons"],
-    "defaultLang": "en-US"
+    "defaultLang": "pt-BR",
+    "coloredIcons": ["./coloredIcons"]
 }

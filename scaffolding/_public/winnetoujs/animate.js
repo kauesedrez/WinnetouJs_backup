@@ -17,3 +17,24 @@ Winnetou.prototype.display = (component) => {
         .addClass("animated")
         .addClass("fadeInLeft");
 };
+
+Winnetou.prototype.active = (component, popstate) => {
+    W.select(component)
+        .addClass("is-active")
+        .addClass("animated")
+        .addClass("fast")
+        .addClass("bounceInRight");
+    W.popstate(popstate);
+};
+
+Winnetou.prototype.deactive = (component) => {
+    W.select(component).addClass("bounceOutRight");
+    setTimeout(() => {
+        W.select(component)
+            .removeClass("is-active")
+            .removeClass("animated")
+            .removeClass("fast")
+            .removeClass("bounceInRight")
+            .removeClass("bounceOutRight");
+    }, 1000);
+};

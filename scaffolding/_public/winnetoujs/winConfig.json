@@ -1,5 +1,5 @@
 {
-    "livereload": false,
+    "livereload": true,
     "outputs": {
         "js": "../js",
         "css": "../css"
@@ -8,5 +8,7 @@
     "js": ["./js_origin", "./slideScreens.js", "./animate.js"],
     "css": ["./css_origin", "./animate.css"],
     "map": true,
-    "sass": ["./sass_origin"]
+    "sass": ["./sass_origin"],
+    "defaultLang": "pt-BR",
+    "coloredIcons": ["./coloredIcons"]
 }

@@ -7,14 +7,24 @@
 </div>
 
 <style>
+    @use 'sass_modules/vars';
+    #app,
+    body {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
     .slideScreen {
         height: 100vh;
-        background-color: #fff;
+        background-color: vars.$bg;
         display: flex;
     }
     .screen {
         width: 100vw;
         height: 100%;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 </style>
+
+<!--
+    Usar uma variável errada sass e fazer o winBundleRelease me mostrar a linha do erro
+-->

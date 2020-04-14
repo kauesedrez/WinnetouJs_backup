@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
-            href="https://fonts.googleapis.com/css2?family=Gotu&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2&display=swap"
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/css/bundleWinnetouStyles.min.css" />
@@ -14,8 +14,12 @@
     <body>
         <% var action = (action1!=false?"/"+action1:"/") + (action2!=false?"/"+action2:"")
         + (action3!=false?"/"+action3:"") %>
-
-        <div id="app"></div>
+        <div class='container'>
+            <div id="box">
+                <div id="menuLeft"></div>
+                <div id="app"></div>
+            </div>
+        </div>
 
         <!-- para suporte no Ie9+ -->
         <script src="https://polyfill.io/v3/polyfill.min.js"></script>
@@ -23,11 +27,16 @@
         <script src="/js/bundleWinnetou.min.js"></script>
 
         <script>
-            W.navigate("/");
+            W.lang(function () {
 
-            <%if(action!="/"){%>
-                W.navigate("<%-action%>");
-            <%}%>
+                W.navigate("/");
+
+                <%if(action!="/"){%>
+                    W.navigate("<%-action%>");
+                <%}%>
+                
+            });
         </script>
+        
     </body>
 </html>

@@ -55,7 +55,13 @@ class Winnetou {
                 if (event.state == null) {
                     WINNETOU_ROUTES["/"]();
                 } else {
-                    WINNETOU_ROUTES[event.state]();
+                    try {
+                        WINNETOU_ROUTES[event.state]();
+                    } catch (e) {
+                        console.error(
+                            `WinnetouJs Error: Given route is not available "${event.state}". Please verify given route. Original Error: ${e}`
+                        );
+                    }
                 }
             };
         } else {
@@ -165,6 +171,23 @@ class Winnetou {
           */
 
         // -----------------------------------------------------------------
+        if (!output.includes("#") && !output.includes(".")) {
+            if (this.debug === "debug") {
+                console.error(`
+Winnetou Error: 
+\n
+\n
+Due to the nature of innerHTML, the create method is only available for HTML elements with id or class, it is not allowed to sew constructs in tags like body for example.
+\n
+Constructo: ${constructo}
+\n
+Output: ${output}               
+                `);
+            }
+            return;
+        }
+
+        // -----------------------------------------------------------------
         var $vdom = "";
         var $this = this;
         function imprime(opt = "") {
@@ -268,25 +291,30 @@ class Winnetou {
          * identifier:String
          */
 
-        let identifier;
-        if (!options || options.identifier === undefined) {
-            this.constructorId++;
-            identifier = this.constructorId;
-        } else {
-            identifier = options.identifier;
-        }
-        identifier = "win-" + identifier;
-        var $vdom = this.$base[constructo].replace(
-            /\[\[\s*?(.*?)\s*?\]\]/g,
-            "$1-" + identifier
-        );
+        try {
+            let identifier;
+            if (!options || options.identifier === undefined) {
+                this.constructorId++;
+                identifier = this.constructorId;
+            } else {
+                identifier = options.identifier;
+            }
+            identifier = "win-" + identifier;
+            var $vdom = this.$base[constructo].replace(
+                /\[\[\s*?(.*?)\s*?\]\]/g,
+                "$1-" + identifier
+            );
 
-        for (let item in elements) {
-            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
-            $vdom = $vdom.replace(reg, elements[item]);
-        }
+            for (let item in elements) {
+                let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+                $vdom = $vdom.replace(reg, elements[item]);
+            }
 
-        return $vdom;
+            return $vdom;
+        } catch (e) {
+            console.error(`Winnetou Error: W.pull('${constructo}') : ${e}`);
+            // return "";
+        }
     }
 
     /**
@@ -419,7 +447,6 @@ class Winnetou {
      * @param next callback
      */
     lang(next) {
-        if (!defaultLang) var defaultLang = "default";
         let localLang = window.localStorage.getItem("lang");
         if (localLang) defaultLang = localLang;
 
