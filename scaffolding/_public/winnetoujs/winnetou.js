@@ -14,6 +14,7 @@ class Winnetou {
     this.constructorId = 0;
     this.$base = [];
     this.$history = [];
+
     if (this.debug == "debug") {
       console.log("\nWinnetou LOG Constructos --- \n");
     }
@@ -81,6 +82,10 @@ class Winnetou {
     } else {
       if ($debug === "debug") console.log("Default theme loaded.");
     }
+  }
+
+  log(i, a = "", b = "", c = "", d = "", e = "", f = "", g = "", h = "") {
+    if (1 === 2) console.warn(a, b, c, d, e, f, g, h);
   }
 
   popstate(f) {
@@ -165,13 +170,13 @@ class Winnetou {
           */
 
     // -----------------------------------------------------------------
-    if (!output.includes("#") && !output.includes(".")) {
+    if (output == "body" && options && options.clear) {
       if (this.debug === "debug") {
         console.error(`
 Winnetou Error: 
 \n
 \n
-Due to the nature of innerHTML, the create method is only available for HTML elements with id or class, it is not allowed to sew constructs in tags like body for example.
+You not allowed to clear body tag.
 \n
 Constructo: ${constructo}
 \n
@@ -222,9 +227,22 @@ Output: ${output}
       let el = document.querySelectorAll(output);
       el.forEach((item) => {
         geraIdentifier();
-        if (opt === "clear") item.innerHTML = $vdom;
-        if (opt === "reverse") item.innerHTML = $vdom + item.innerHTML;
-        if (opt === "") item.innerHTML += $vdom;
+
+        if (opt === "clear") {
+          item.innerHTML = "";
+          let frag = document.createRange().createContextualFragment($vdom);
+          item.appendChild(frag);
+        }
+
+        if (opt === "reverse") {
+          let frag = document.createRange().createContextualFragment($vdom);
+          item.prepend(frag);
+          // item.innerHTML = $vdom + item.innerHTML;
+        }
+        if (opt === "") {
+          let frag = document.createRange().createContextualFragment($vdom);
+          item.appendChild(frag);
+        }
       });
     }
 
@@ -285,6 +303,8 @@ Output: ${output}
      * identifier:String
      */
 
+    const $log = this.log;
+
     try {
       let identifier;
       if (!options || options.identifier === undefined) {
@@ -304,11 +324,46 @@ Output: ${output}
         $vdom = $vdom.replace(reg, elements[item]);
       }
 
+      // limpa os elements que não foram setados
+      let reg2 = new RegExp("{{\\s*?(.*?)\\s*?}}", "g");
+      $vdom = $vdom.replace(reg2, "");
+
+      // $log(1, "\n\n\npull", $vdom);
+
       return $vdom;
     } catch (e) {
       console.error(`Winnetou Error: W.pull('${constructo}') : ${e}`);
       // return "";
     }
+  }
+
+  /**
+   * Creates a pipeline of contructos to be sew in final render output
+   * @method pipe("constructo","elements") Store constructo
+   * @method render("output") Sew up constructo
+   */
+  pipeline() {
+    var result = "";
+    var $this = this;
+    const $log = this.log;
+
+    const obj = {
+      pipe(constructo = "", elements = {}) {
+        result += $this.pull(constructo, elements);
+        $log(1, result);
+
+        return this;
+      },
+      render(output) {
+        let el = document.querySelectorAll(output);
+        el.forEach((item) => {
+          let frag = document.createRange().createContextualFragment(result);
+          item.appendChild(frag);
+        });
+      },
+    };
+
+    return obj;
   }
 
   /**
