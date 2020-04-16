@@ -17,11 +17,12 @@ class Winnetou {
     this.$base = [];
     this.$history = [];
 
+    var $debug = this.debug;
+    var $this = this;
+
     if (this.debug == "debug") {
       console.log("\nWinnetou LOG Constructos --- \n");
     }
-
-    var $debug = this.debug;
 
     Array.from(Componentes).forEach((componente) => {
       var id = componente.innerHTML.match(/\[\[\s?(.*?)\s?\]\]/)[1];
@@ -38,6 +39,16 @@ class Winnetou {
     });
 
     Componentes = null; // garbage collec$debug == "debug"
+
+    if ($debug === "debug") {
+      document.addEventListener("keydown", (event) => {
+        if (event.ctrlKey && event.which === 77) {
+          let mutable = prompt("Mutable name");
+          let mutableValue = prompt("Mutable value");
+          $this.setMutable(mutable, mutableValue);
+        }
+      });
+    }
 
     // 0.30 - popstate nativo
 
