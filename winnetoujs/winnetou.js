@@ -8,6 +8,8 @@ class Winnetou {
   //
 
   constructor(debug = "", next) {
+    this.mutable = {};
+    this.usingMutable = {};
     this.string = [];
     this.debug = debug;
     this.version = "0.10.1";
@@ -85,9 +87,64 @@ class Winnetou {
   }
 
   log(i, a = "", b = "", c = "", d = "", e = "", f = "", g = "", h = "") {
-    if (1 === 2) console.warn(a, b, c, d, e, f, g, h);
+    if (i === 3)
+      console.warn(
+        "\n\nWINNETOU DEVELOPMENT INTERNAL LOG\n",
+        a,
+        b,
+        c,
+        d,
+        e,
+        f,
+        g,
+        h,
+        "\n\n"
+      );
   }
 
+  /**
+   * Gets the value of passed winnetou mutable
+   * @param mutable string that represents a winnetou mutable
+   * @returns string value
+   */
+  getMutable(mutable) {
+    return window.localStorage.getItem(`mutable_${mutable}`) || false;
+  }
+
+  /**
+   * Sets the value of passed winnetou mutable
+   * @param mutable string that represents a winnetou mutable
+   * @param value string value to be associated to mutable
+   */
+  setMutable(mutable, value) {
+    var $log = this.log;
+    var $this = this;
+
+    // this.mutable[mutable] = value;
+    window.localStorage.setItem(`mutable_${mutable}`, value);
+
+    if (this.usingMutable[mutable]) {
+      let tmpArr = this.usingMutable[mutable];
+      this.usingMutable[mutable] = [];
+
+      tmpArr.forEach((item) => {
+        let old_ = document.getElementById(item.id);
+
+        let new_ = document
+          .createRange()
+          .createContextualFragment(
+            this.pull(item.constructo, item.elements, item.options, "replacestore")
+          );
+
+        this.replace(new_, old_);
+      });
+    }
+  }
+
+  /**
+   * Creates a popstate of interaction without url changes
+   * @param f value to be passed to popstate when returning
+   */
   popstate(f) {
     var $this = this;
     if (window.history && window.history.pushState) {
@@ -98,7 +155,6 @@ class Winnetou {
         ? console.log("History Api not allowed in this browser.")
         : null;
     }
-    console.log(history);
   }
 
   /**
@@ -151,6 +207,7 @@ class Winnetou {
    * @param options Options that control insertion behavior. Accepted options are: identifier, clear and reverse.
    */
   create(constructo = "", output = "", elements = {}, options = {}) {
+    var $log = this.log;
     /*
           opções aceitas na versão 1.0
           ----------------------------------------
@@ -211,17 +268,49 @@ Output: ${output}
           "$1-" + identifier
         );
 
+        // ----------------------------------------------------------------
+        // elements replace -----------------------------------------------
+        // ----------------------------------------------------------------
+
+        //
         for (let item in elements) {
-          //--------------
-          let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+          //
 
-          $vdom = $vdom.replace(reg, elements[item]);
-          //-------------
+          if (typeof elements[item] === "object") {
+            //
+            let str = $this.getMutable(elements[item].mutable);
+            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+            $vdom = $vdom.replace(reg, str);
+
+            // agora preciso criar uma lista de constructos que esta usando
+            // este mutable
+
+            if (!$this.usingMutable[elements[item].mutable])
+              $this.usingMutable[elements[item].mutable] = [];
+
+            let obj = {
+              constructo: constructo,
+              id: `${constructo}-${identifier}`,
+              elements: elements,
+              options: options,
+            };
+
+            $this.usingMutable[elements[item].mutable].push(obj);
+
+            $log(3, "usingMutable dentro do create", $this.usingMutable);
+
+            //
+          } else {
+            //
+            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+            $vdom = $vdom.replace(reg, elements[item]);
+            //
+          }
         }
-
         // limpa os elements que não foram setados
         let reg2 = new RegExp("{{\\s*?(.*?)\\s*?}}", "g");
         $vdom = $vdom.replace(reg2, "");
+        // ----------------------------------------------------------------
       }
 
       let el = document.querySelectorAll(output);
@@ -292,6 +381,20 @@ Output: ${output}
   }
 
   /**
+   * Internal function to replace a constructo
+   * @param new_ DOM Element
+   * @param old_ DOM Element
+   */
+  replace(new_, old_) {
+    // agora o replace tem que dar o replace no usingMutable tambem
+    // este replace será feito direto no pull
+
+    let ele_ = old_.parentNode;
+
+    ele_.replaceChild(new_, old_);
+  }
+
+  /**
    * Returns the html string from constructo to be included inline in app. It don't have a output param once ir return a value.
    * @param constructo A component defined in the html of the constructs previously set by winConfig.json
    * @param elements Substitutions within the constructo defined by {{id}}
@@ -304,6 +407,7 @@ Output: ${output}
      */
 
     const $log = this.log;
+    const $this = this;
 
     try {
       let identifier;
@@ -319,16 +423,45 @@ Output: ${output}
         "$1-" + identifier
       );
 
-      for (let item in elements) {
-        let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
-        $vdom = $vdom.replace(reg, elements[item]);
-      }
+      // ----------------------------------------------------------------
+      // elements replace -----------------------------------------------
+      // ----------------------------------------------------------------
 
+      //
+      for (let item in elements) {
+        //
+
+        if (typeof elements[item] === "object") {
+          //
+          let str = $this.getMutable(elements[item].mutable);
+          let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+          $vdom = $vdom.replace(reg, str);
+
+          //
+          if (!$this.usingMutable[elements[item].mutable])
+            $this.usingMutable[elements[item].stamutablete] = [];
+
+          let obj = {
+            constructo: constructo,
+            id: `${constructo}-${identifier}`,
+            elements: elements,
+            options: options,
+          };
+
+          $this.usingMutable[elements[item].mutable].push(obj);
+
+          //
+        } else {
+          //
+          let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+          $vdom = $vdom.replace(reg, elements[item]);
+          //
+        }
+      }
       // limpa os elements que não foram setados
       let reg2 = new RegExp("{{\\s*?(.*?)\\s*?}}", "g");
       $vdom = $vdom.replace(reg2, "");
-
-      // $log(1, "\n\n\npull", $vdom);
+      // ----------------------------------------------------------------
 
       return $vdom;
     } catch (e) {
@@ -458,6 +591,9 @@ Output: ${output}
       getWidth() {
         return el[0].offsetWidth;
       },
+      getVal() {
+        return el[0].value;
+      },
     };
 
     el = obj.getEl(selector);
@@ -530,7 +666,6 @@ Output: ${output}
   }
 
   // 0.36
-
   /**
    * Ajax
    * @param options json object (url, method, data, cacheThenServer, cacheOnly, recache)

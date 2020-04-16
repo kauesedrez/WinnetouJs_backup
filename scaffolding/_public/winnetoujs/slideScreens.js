@@ -5,7 +5,7 @@ function slideScreen(outputConstructo, container) {
   //
   GLOBAL_SS_OUT = W.select(container).getWidth();
 
-  console.log("\n\n\nwidth #app: ", GLOBAL_SS_OUT, container);
+  // console.log("\n\n\nwidth #app: ", GLOBAL_SS_OUT, container);
 
   const totalDeTelas = document.getElementById(outputConstructo).childElementCount;
 
