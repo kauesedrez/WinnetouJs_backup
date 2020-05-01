@@ -1,4 +1,5 @@
 {
+  "env": "prod",
   "livereload": true,
   "outputs": {
     "js": "../js",
@@ -9,5 +10,6 @@
   "css": ["./css_origin", "./animate.css"],
   "map": true,
   "sass": ["./sass_origin"],
-  "defaultLang": "pt-BR"
+  "defaultLang": "pt-BR",
+  "icons": ["./icons"]
 }

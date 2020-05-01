@@ -371,9 +371,11 @@ const PerformJs = async () => {
    *
    */
 
-  code["new winnetou"] = `var W=new Winnetou("${
-    config.debug ? config.debug : "production"
-  }")`;
+  if (config.env && config.env === "dev") {
+    code["new winnetou"] = `var W=new Winnetou("debug")`;
+  } else {
+    code["new winnetou"] = `var W=new Winnetou("production")`;
+  }
 
   /**
    * OUTROS SCRIPTS
@@ -859,6 +861,7 @@ const adicionarIconesAoBundle = async () => {
       );
 
       let iconsSuccess2 = iconsSuccess;
+      return resolve("ok");
     } else {
       return resolve("No icons");
     }
@@ -1519,7 +1522,7 @@ const minifyHTML = async (arquivo) => {
  *
  *
  */
-(async () => {
+async function PerformAll() {
   //
   let resultadoJs = await PerformJs();
   await BundleJs(resultadoJs);
@@ -1534,5 +1537,7 @@ const minifyHTML = async (arquivo) => {
 
   drawFinal();
   //
-})();
+}
+
+PerformAll();
 // #endregion

@@ -10,12 +10,16 @@ class Winnetou {
   constructor(debug = "", next) {
     this.mutable = {};
     this.usingMutable = {};
-    this.string = [];
+    this.strings = [];
     this.debug = debug;
     this.version = "0.10.1";
     this.constructorId = 0;
     this.$base = [];
     this.$history = [];
+
+    //rotas
+    this.routes = {};
+    this.paramRoutes = {};
 
     var $debug = this.debug;
     var $this = this;
@@ -40,6 +44,9 @@ class Winnetou {
 
     Componentes = null; // garbage collec$debug == "debug"
 
+    // ---------------------------------------------------------
+    // ctrol + m para modificar algum mutable
+
     if ($debug === "debug") {
       document.addEventListener("keydown", (event) => {
         if (event.ctrlKey && event.which === 77) {
@@ -49,6 +56,15 @@ class Winnetou {
         }
       });
     }
+
+    // ---------------------------------------------------------
+    // esc para ativar o popstate
+    // https://css-tricks.com/snippets/javascript/javascript-keycodes/
+    document.addEventListener("keydown", (event) => {
+      if (event.which === 27) {
+        history.go(-1);
+      }
+    });
 
     // 0.30 - popstate nativo
 
@@ -65,10 +81,12 @@ class Winnetou {
         event.preventDefault();
 
         if (event.state == null) {
-          WINNETOU_ROUTES["/"]();
+          $this.routes["/"]();
         } else {
           try {
-            WINNETOU_ROUTES[event.state]();
+            // apenas aqui
+            // $this.routes[event.state]();
+            $this.callRoute(event.state);
           } catch (e) {
             console.error(
               `WinnetouJs Error: Given route is not available "${event.state}". Please verify given route. Original Error: ${e}`
@@ -98,7 +116,7 @@ class Winnetou {
   }
 
   log(i, a = "", b = "", c = "", d = "", e = "", f = "", g = "", h = "") {
-    if (i === 3)
+    if (i === 5)
       console.warn(
         "\n\nWINNETOU DEVELOPMENT INTERNAL LOG\n",
         a,
@@ -119,7 +137,9 @@ class Winnetou {
    * @returns string value
    */
   getMutable(mutable) {
-    return window.localStorage.getItem(`mutable_${mutable}`) || false;
+    let local_mutable = window.localStorage.getItem(`mutable_${mutable}`) || false;
+    if (!local_mutable) local_mutable = this.mutable[mutable] || false;
+    return local_mutable;
   }
 
   /**
@@ -127,12 +147,14 @@ class Winnetou {
    * @param mutable string that represents a winnetou mutable
    * @param value string value to be associated to mutable
    */
-  setMutable(mutable, value) {
+  setMutable(mutable, value, localStorage = true) {
     var $log = this.log;
     var $this = this;
 
-    // this.mutable[mutable] = value;
-    window.localStorage.setItem(`mutable_${mutable}`, value);
+    if (localStorage) window.localStorage.setItem(`mutable_${mutable}`, value);
+    else this.mutable[mutable] = value;
+
+    // se estiver usando mutable no localstorage nao atualiza o constructo?
 
     if (this.usingMutable[mutable]) {
       let tmpArr = this.usingMutable[mutable];
@@ -140,6 +162,9 @@ class Winnetou {
 
       tmpArr.forEach((item) => {
         let old_ = document.getElementById(item.id);
+
+        // deveria manter o mesmo id ...
+        // como obter isso
 
         let new_ = document
           .createRange()
@@ -150,6 +175,34 @@ class Winnetou {
         this.replace(new_, old_);
       });
     }
+  }
+
+  createRoutes() {
+    /**
+     * Analise da variável this.routes ------------------
+     *
+     */
+
+    var $this = this;
+
+    Object.keys($this.routes).forEach((key) => {
+      if (key.includes("/:")) {
+        // /protocolo/:numero -->
+        // /perfil/:usuario/:acao -->
+
+        // Preciso separa em duas variáveis
+
+        let separatedRoutes = key.split("/:");
+
+        // armazeno o 0 como identificador de rota especial
+
+        $this.paramRoutes[separatedRoutes[0]] = separatedRoutes[1];
+      }
+    });
+
+    $this.log(4, "$this.paramRoutes", $this.paramRoutes);
+
+    // -------------------------------------------------------
   }
 
   /**
@@ -168,6 +221,49 @@ class Winnetou {
     }
   }
 
+  // internal
+  callRoute(url) {
+    var $this = this;
+    try {
+      let separatedRoutes = url.split("/");
+      $this.log(4, "separatedRoutes", separatedRoutes);
+      if (separatedRoutes.length > 2) {
+        if (Object.keys($this.paramRoutes).indexOf("/" + separatedRoutes[1]) != -1) {
+          // existe a ocorrencia
+          $this.log(
+            4,
+            "existe a ocorrencia",
+            `/${separatedRoutes[1]}/:${$this.paramRoutes["/" + separatedRoutes[1]]}`
+          );
+          $this.routes[
+            `/${separatedRoutes[1]}/:${$this.paramRoutes["/" + separatedRoutes[1]]}`
+          ](separatedRoutes[2]);
+        } else {
+          $this.routes[url]();
+        }
+      } else {
+        $this.routes[url]();
+      }
+    } catch (e) {
+      $this.debug === "debug"
+        ? console.error(
+            "WinnetouJs Error: the provided URL was not found or the this.routes const not have been declared as a valid object of named functions. See WinnetouJs docs for more information.",
+            url,
+            e
+          )
+        : null;
+      try {
+        $this.routes["/404"]();
+      } catch (e) {
+        if ($this.debug === "debug")
+          console.warn(
+            "Winnetou Warning: the /404 route was not defined in the this.routes."
+          );
+        document.write("<h1>WinnetouJs</h1><h2>The indie javascript framework</h2>");
+      }
+    }
+  }
+
   /**
      * Allows WinnetouJs to navigate between pages on the app. Needs a valid const routes already set.
      * @param action (anonymous function) a function to be called when user use back button on a pc ou mobile phone. Needs to be an anonymous function ()=>{} whithou params. 
@@ -176,6 +272,7 @@ class Winnetou {
      */
   navigate(url) {
     var $this = this;
+
     if (window.history && window.history.pushState) {
       try {
         history.pushState(url, "", url);
@@ -183,26 +280,7 @@ class Winnetou {
         history.pushState(url, null);
       }
 
-      try {
-        WINNETOU_ROUTES[url]();
-      } catch (e) {
-        $this.debug === "debug"
-          ? console.error(
-              "WinnetouJs Error: the provided URL was not found or the WINNETOU_ROUTES const not have been declared as a valid object of named functions. See WinnetouJs docs for more information.",
-              url,
-              e
-            )
-          : null;
-        try {
-          WINNETOU_ROUTES["/404"]();
-        } catch (e) {
-          if ($this.debug === "debug")
-            console.warn(
-              "Winnetou Warning: the /404 route was not defined in the WINNETOU_ROUTES."
-            );
-          document.write("<h1>WinnetouJs</h1><h2>The indie javascript framework</h2>");
-        }
-      }
+      $this.callRoute(url);
     } else {
       $this.debug === "debug"
         ? console.log("History Api not allowed in this browser.")
@@ -219,6 +297,10 @@ class Winnetou {
    */
   create(constructo = "", output = "", elements = {}, options = {}) {
     var $log = this.log;
+
+    // usada para retornar todos os ids referenciados
+    var retorno = {};
+
     /*
           opções aceitas na versão 1.0
           ----------------------------------------
@@ -274,6 +356,19 @@ Output: ${output}
           identifier = options.identifier;
         }
         identifier = "win-" + identifier;
+
+        // preenche o retorno
+        var regId = /\[\[\s*?(.*?)\s*?\]\]/g;
+        var matchIds = $this.$base[constructo].match(regId);
+        matchIds = matchIds.map((item) => item.replace("[[", "").replace("]]", ""));
+        matchIds = matchIds.map((item) => item + "-" + identifier);
+
+        matchIds.forEach((item) => {
+          let nome = item.split("-win-")[0];
+          retorno[nome] = "#" + item;
+        });
+
+        // altera o vdom
         $vdom = $this.$base[constructo].replace(
           /\[\[\s*?(.*?)\s*?\]\]/g,
           "$1-" + identifier
@@ -313,7 +408,7 @@ Output: ${output}
             //
           } else {
             //
-            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}");
+            let reg = new RegExp("{{\\s*?(" + item + ")\\s*?}}", "g");
             $vdom = $vdom.replace(reg, elements[item]);
             //
           }
@@ -389,6 +484,8 @@ Output: ${output}
           );
       }
     }
+
+    return retorno;
   }
 
   /**
@@ -514,9 +611,14 @@ Output: ${output}
    * Remove the indicated constructo
    * @param constructo A component defined in the html of the constructs previously set by winConfig.json
    */
-  destroy(constructo = "") {
-    let el = document.querySelector(constructo);
-    el.remove();
+  destroy(component = "") {
+    var $this = this;
+    try {
+      W.select(component).remove();
+    } catch (e) {
+      if ($this.debug === "debug")
+        console.warn(`Winnetou Warning: The constructo ${component} doesn't exists.`);
+    }
   }
 
   /**
@@ -540,6 +642,12 @@ Output: ${output}
             return Array.from(document.getElementsByTagName(selector));
           }
         }
+      },
+      remove() {
+        el.forEach((item) => {
+          item.remove();
+        });
+        return this;
       },
       html(texto) {
         el.forEach((item) => {
@@ -605,11 +713,46 @@ Output: ${output}
       getVal() {
         return el[0].value;
       },
+      setVal(value) {
+        el.forEach((item) => {
+          item.value = value;
+          if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            item.dispatchEvent(evt);
+          } else item.fireEvent("onchange");
+        });
+        return this;
+      },
+      setAttr(attr, value) {
+        el.forEach((item) => {
+          item.setAttribute(attr, value);
+        });
+        return this;
+      },
+      getAttr(attr) {
+        return el[0].getAttribute(attr);
+      },
     };
 
     el = obj.getEl(selector);
 
     return obj;
+  }
+
+  // 0.45
+  /**
+   * Função que adiciona o listener mousedown e touchstart aos elementos
+   * @param {string} selector seletor (id ou class) do elemento
+   * @param {function} callback ()=>{}
+   */
+  click(selector = "", callback) {
+    var clickHandler =
+      "ontouchstart" in document.documentElement ? "touchstart" : "click";
+
+    this.on(clickHandler, selector, (el) => {
+      callback(el);
+    });
   }
 
   //0.31 - Delegate
@@ -645,18 +788,22 @@ Output: ${output}
    * @param next callback
    */
   lang(next) {
+    var $this = this;
     let localLang = window.localStorage.getItem("lang");
     if (localLang) defaultLang = localLang;
 
-    var $this = this;
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         let trad = this.responseXML;
+
         let el = trad.getElementsByTagName("winnetou");
         let frases = el[0].childNodes;
+
         frases.forEach((item) => {
-          $this.string[item.nodeName] = item.textContent;
+          if (item.nodeName != "#text") {
+            $this.strings[item.nodeName] = item.textContent;
+          }
         });
         //console.log("frases", frases);
         next();
