@@ -1,15 +1,12 @@
 {
-  "env": "prod",
+  "env": "dev",
   "livereload": true,
   "outputs": {
     "js": "../js",
     "css": "../css"
   },
-  "constructos": ["./constructos", "./slideScreens.html"],
-  "js": ["./js_origin", "./animate.js"],
-  "css": ["./css_origin", "./animate.css"],
+  "constructos": ["./constructos"],
+  "js": ["./js_origin"],
   "map": true,
-  "sass": ["./sass_origin"],
-  "defaultLang": "pt-BR",
-  "icons": ["./icons"]
+  "sass": ["./sass_origin"]
 }

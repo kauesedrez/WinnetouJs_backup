@@ -31,6 +31,7 @@ Winnetou.prototype.deactive = (component) => {
       .removeClass("animated")
       .removeClass("fast")
       .removeClass("bounceInRight")
-      .removeClass("bounceOutRight");
+      .removeClass("bounceOutRight")
+      .hide();
   }, 1000);
 };
