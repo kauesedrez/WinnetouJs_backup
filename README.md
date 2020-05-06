@@ -22,6 +22,6 @@ O bundleWinnetou.min.js também é gerado com o arquivo .map para poder ser insp
 
 Veja mais informações na Wiki do projeto.
 
-[ATENÇÃO] Para rodar o winBundleRelease é necessário ter o node instalada na versão 12 ou superior.
+[ATENÇÃO] Para rodar o winBundleRelease é necessário ter o node instalado na versão 12 ou superior.
 
 
