@@ -1,6 +1,6 @@
 {
   "name": "winnetoujs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Base package for WinnetouJs frontend development",
   "main": "src/_winnetouBase.js",
   "scripts": {
