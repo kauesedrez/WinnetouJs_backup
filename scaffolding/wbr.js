@@ -130,7 +130,7 @@ async function main() {
       }
 
       let resultadoFinal = `
-        import WinnetouBase from "./_winnetouBase.js";
+        import {WinnetouBase} from  "./node_modules/winnetoujs/src/_winnetouBase.js";
 
         /**
          * WinnetouJs Main Class
