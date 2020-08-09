@@ -1,8 +1,8 @@
 {
-  "name": "winnetoujs_v2",
+  "name": "winnetoujs_project",
   "version": "1.0.0",
   "description": "",
-  "main": "_generatedConstructos.js",
+  "main": "winnetou.js",
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.10.5",
     "@babel/runtime": "^7.10.5",
@@ -16,7 +16,6 @@
     "uglifycss": "0.0.29",
     "win-animate": "^1.0.1",
     "win-slidescreen": "^1.0.3",
-    "winnetou-base": "^1.0.1",
     "xml-parse": "^0.4.0"
   },
   "devDependencies": {
@@ -30,13 +29,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kauesedrez/winnetoujs_v2.git"
+    "url": "git+https://github.com/kauesedrez/winnetoujs.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kauesedrez/winnetoujs_v2/issues"
+    "url": "https://github.com/kauesedrez/winnetoujs/issues"
   },
-  "homepage": "https://github.com/kauesedrez/winnetoujs_v2#readme"
+  "homepage": "https://github.com/kauesedrez/winnetoujs#readme"
 }
